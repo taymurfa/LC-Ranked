@@ -1,5 +1,5 @@
 -- ─────────────────────────────────────────────────────────────────────────────
--- LeetBattle — initial schema
+-- LeetBattle — consolidated initial schema
 -- Run via: supabase db push  (or paste into the Supabase SQL editor)
 -- ─────────────────────────────────────────────────────────────────────────────
 
@@ -30,7 +30,23 @@ create trigger profiles_updated_at
   before update on profiles
   for each row execute function touch_updated_at();
 
--- ── matches ───────────────────────────────────────────────────────────────────
+-- ── problems ─────────────────────────────────────────────────────────────────
+create type difficulty as enum ('easy', 'medium', 'hard');
+
+create table if not exists problems (
+  id          serial primary key,
+  slug        text unique not null,
+  title       text not null,
+  difficulty  difficulty not null,
+  tags        text[] not null default '{}',
+  description text not null,
+  examples    jsonb not null default '[]',
+  constraints text[] not null default '{}',
+  active      boolean not null default true,
+  created_at  timestamptz not null default now()
+);
+
+-- ── matches ──────────────────────────────────────────────────────────────────
 create table if not exists matches (
   id                  text primary key,
   player_a_id         uuid not null references profiles(id),
@@ -53,7 +69,7 @@ create index matches_player_a_idx on matches(player_a_id);
 create index matches_player_b_idx on matches(player_b_id);
 create index matches_created_at_idx on matches(created_at desc);
 
--- ── anticheat_events ──────────────────────────────────────────────────────────
+-- ── anticheat_events ─────────────────────────────────────────────────────────
 create table if not exists anticheat_events (
   id         bigserial primary key,
   match_id   text not null references matches(id) on delete cascade,
@@ -66,10 +82,11 @@ create table if not exists anticheat_events (
 create index anticheat_match_idx on anticheat_events(match_id);
 create index anticheat_user_idx  on anticheat_events(user_id);
 
--- ── Row Level Security ────────────────────────────────────────────────────────
+-- ── Row Level Security ───────────────────────────────────────────────────────
 alter table profiles           enable row level security;
 alter table matches            enable row level security;
 alter table anticheat_events   enable row level security;
+alter table problems           enable row level security;
 
 -- profiles: public reads, own-row writes
 create policy "profiles_public_read"  on profiles for select using (true);
@@ -79,12 +96,14 @@ create policy "profiles_own_update"   on profiles for update using (auth.uid() =
 create policy "matches_participant_read" on matches for select
   using (auth.uid() = player_a_id or auth.uid() = player_b_id);
 
+-- problems: public read
+create policy "problems_public_read" on problems for select using (true);
+
 -- anticheat_events: only visible to the player themselves
 create policy "anticheat_own_read" on anticheat_events for select
   using (auth.uid() = user_id);
 
--- ── Auto-create profile on signup ─────────────────────────────────────────────
--- (Belt-and-suspenders alongside the API route)
+-- ── Auto-create profile on signup ────────────────────────────────────────────
 create or replace function handle_new_user()
 returns trigger language plpgsql security definer as $$
 begin

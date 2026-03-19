@@ -22,6 +22,38 @@ router.get("/me", requireAuth, async (req, res) => {
 });
 
 /**
+ * GET /profiles/me/matches
+ * Authenticated user's own match history.
+ */
+router.get("/me/matches", requireAuth, async (req, res) => {
+  const page = Math.max(1, parseInt(req.query.page) || 1);
+  const limit = Math.min(50, parseInt(req.query.limit) || 20);
+  const offset = (page - 1) * limit;
+  const userId = req.user.id;
+
+  const { data, error, count } = await supabase
+    .from("matches")
+    .select(`
+      id, difficulty, created_at,
+      player_a_id, player_b_id,
+      player_a_delta, player_b_delta,
+      winner_id,
+      player_a:profiles!player_a_id(username, elo),
+      player_b:profiles!player_b_id(username, elo)
+    `, { count: "exact" })
+    .or(`player_a_id.eq.${userId},player_b_id.eq.${userId}`)
+    .order("created_at", { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  if (error) return res.status(500).json({ error: error.message });
+
+  res.json({
+    matches: data,
+    pagination: { page, limit, total: count, pages: Math.ceil(count / limit) },
+  });
+});
+
+/**
  * GET /profiles/:username
  * Public profile lookup.
  */
@@ -59,7 +91,7 @@ router.get("/:username/matches", async (req, res) => {
   const { data, error, count } = await supabase
     .from("matches")
     .select(`
-      id, difficulty, created_at, duration_seconds,
+      id, difficulty, created_at,
       player_a_id, player_b_id,
       player_a_delta, player_b_delta,
       winner_id,

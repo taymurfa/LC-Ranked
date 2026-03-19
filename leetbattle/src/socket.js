@@ -91,7 +91,7 @@ export function initSocket(httpServer) {
     });
 
     // ── Ready handshake ────────────────────────────────────────────────────
-    socket.on("match:ready", ({ matchId }) => {
+    socket.on("match:ready", async ({ matchId }) => {
       socket.join(`match:${matchId}`);
       // When both players have joined the room (size = 2), start the match
       const room = io.sockets.adapter.rooms.get(`match:${matchId}`);
@@ -102,7 +102,7 @@ export function initSocket(httpServer) {
           durationSeconds: 30 * 60,
         });
         // Update match status
-        supabase.from("matches").update({ status: "active", started_at: new Date().toISOString() })
+        await supabase.from("matches").update({ status: "active", started_at: new Date().toISOString() })
           .eq("id", matchId);
       }
     });

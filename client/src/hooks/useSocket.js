@@ -16,6 +16,10 @@ export function useSocket() {
                 auth: { token },
                 transports: ['websocket'],
             });
+
+            socketInstance.on('connect_error', (err) => {
+                console.error('Socket connection error:', err.message);
+            });
         }
 
         socketRef.current = socketInstance;
@@ -26,4 +30,12 @@ export function useSocket() {
     }, [token]);
 
     return socketRef.current;
+}
+
+/** Disconnect and clear the singleton socket (call on sign-out). */
+export function disconnectSocket() {
+    if (socketInstance) {
+        socketInstance.disconnect();
+        socketInstance = null;
+    }
 }

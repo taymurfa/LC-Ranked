@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
 import { supabase } from "./services/supabase";
+import { disconnectSocket } from "./hooks/useSocket";
 import SignIn from "./pages/SignIn";
 import Matchmaking from "./pages/Matchmaking";
 import Battle from "./pages/Battle";
@@ -32,7 +33,7 @@ function Nav() {
         ))}
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <button onClick={() => supabase.auth.signOut()} style={{ fontSize: 12, cursor: 'pointer', background: 'transparent', border: 'none', color: 'var(--text-2)' }}>Sign Out</button>
+        <button onClick={() => { disconnectSocket(); supabase.auth.signOut(); }} style={{ fontSize: 12, cursor: 'pointer', background: 'transparent', border: 'none', color: 'var(--text-2)' }}>Sign Out</button>
         <div style={{
           width: 32, height: 32, borderRadius: "50%", background: "var(--accent-dim)",
           border: "1px solid rgba(162,155,254,0.3)", display: "flex", alignItems: "center",

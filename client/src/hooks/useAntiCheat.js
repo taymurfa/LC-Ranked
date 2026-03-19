@@ -10,8 +10,11 @@ export function useAntiCheat(socket, matchId) {
 
         const handleVisibilityChange = () => {
             if (document.hidden) {
-                setTabWarnings(w => w + 1);
-                setAcAlert(`Tab switch detected — warning ${tabWarnings + 1}/3`);
+                setTabWarnings(w => {
+                    const next = w + 1;
+                    setAcAlert(`Tab switch detected — warning ${next}/3`);
+                    return next;
+                });
                 socket.emit('anticheat:event', { matchId, type: 'tab_blur', details: {} });
             }
         };
@@ -19,7 +22,8 @@ export function useAntiCheat(socket, matchId) {
         const handlePaste = (e) => {
             const pasteText = (e.clipboardData || window.clipboardData).getData('text');
             if (pasteText.length > 20) {
-                setAcAlert('Paste detected — warning');
+                e.preventDefault();
+                setAcAlert('Large paste blocked — warning');
                 socket.emit('anticheat:event', { matchId, type: 'paste_detected', details: { length: pasteText.length } });
             }
         };
@@ -31,18 +35,19 @@ export function useAntiCheat(socket, matchId) {
             document.removeEventListener("visibilitychange", handleVisibilityChange);
             document.removeEventListener("paste", handlePaste);
         };
-    }, [socket, matchId, tabWarnings]);
+    }, [socket, matchId]);
 
-    // Handle Server Warnings
     useEffect(() => {
         if (!socket) return;
 
-        socket.on('anticheat:warn', ({ type, count }) => {
+        const handleWarn = ({ type, count }) => {
             if (type === 'tab_blur') setTabWarnings(count);
-        });
+        };
+
+        socket.on('anticheat:warn', handleWarn);
 
         return () => {
-            socket.off('anticheat:warn');
+            socket.off('anticheat:warn', handleWarn);
         };
     }, [socket]);
 

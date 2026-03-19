@@ -102,8 +102,12 @@ router.post("/:id/submit", requireAuth, async (req, res) => {
     .select("id, elo, match_count")
     .in("id", [match.player_a_id, match.player_b_id]);
 
-  const profileA = profiles.find(p => p.id === match.player_a_id);
-  const profileB = profiles.find(p => p.id === match.player_b_id);
+  const profileA = profiles?.find(p => p.id === match.player_a_id);
+  const profileB = profiles?.find(p => p.id === match.player_b_id);
+
+  if (!profileA || !profileB) {
+    return res.status(500).json({ error: "Could not load player profiles for Elo calculation" });
+  }
 
   const { newRatingA, newRatingB, deltaA, deltaB } = calculateElo(
     { rating: profileA.elo, matchCount: profileA.match_count },

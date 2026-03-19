@@ -9,6 +9,7 @@ import authRoutes from "./routes/auth.js";
 import profileRoutes from "./routes/profiles.js";
 import matchRoutes from "./routes/matches.js";
 import leaderboardRoutes from "./routes/leaderboard.js";
+import matchmakingRoutes from "./routes/matchmaking.js";
 import { initSocket } from "./socket.js";
 import { queueSize } from "./services/matchmaking.js";
 
@@ -32,6 +33,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/profiles", profileRoutes);
 app.use("/api/matches", matchRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
+app.use("/api/matchmaking", matchmakingRoutes);
 
 // Health / status
 app.get("/api/status", (req, res) => {
