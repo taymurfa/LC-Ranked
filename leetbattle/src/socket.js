@@ -38,12 +38,24 @@ export function initSocket(httpServer) {
 
   // ── Match pair event (fires when matchmaking pairs two players) ──────────
   matchEvents.on("matched", async ({ matchId, playerA, playerB }) => {
+    // Pick a random problem for this match's difficulty
+    const { data: problems } = await supabase
+      .from("problems")
+      .select("id")
+      .eq("difficulty", playerA.difficulty)
+      .eq("active", true);
+
+    const problemId = problems && problems.length > 0
+      ? problems[Math.floor(Math.random() * problems.length)].id
+      : null;
+
     // Create match record in DB
     await supabase.from("matches").insert({
       id: matchId,
       player_a_id: playerA.userId,
       player_b_id: playerB.userId,
       difficulty: playerA.difficulty,
+      problem_id: problemId,
       status: "pending",
     });
 
@@ -52,6 +64,7 @@ export function initSocket(httpServer) {
 
     const payload = (myInfo, oppInfo) => ({
       matchId,
+      problemId,
       difficulty: myInfo.difficulty,
       you: { userId: myInfo.userId, rating: myInfo.rating },
       opponent: { userId: oppInfo.userId, rating: oppInfo.rating },

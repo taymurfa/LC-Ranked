@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 
 export function ProfilePage() {
     const { token } = useAuth();
@@ -118,6 +118,7 @@ export function LeaderboardPage() {
 
 export function ResultPage() {
     const { token, user } = useAuth();
+    const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const matchId = searchParams.get('id');
     const forfeit = searchParams.get('forfeit');
@@ -141,13 +142,14 @@ export function ResultPage() {
         const isSelf = forfeit === 'self';
         return (
             <div style={{ maxWidth: 500, margin: "10vh auto", padding: "2rem", textAlign: "center" }}>
-                <div style={{ fontSize: 48, marginBottom: 16 }}>{isSelf ? "💀" : "🏆"}</div>
+                <div style={{ fontSize: 48, marginBottom: 16 }}>{isSelf ? "\uD83D\uDC80" : "\uD83C\uDFC6"}</div>
                 <div style={{ fontSize: 24, fontWeight: 700, color: isSelf ? "var(--red)" : "var(--green)", marginBottom: 8 }}>
                     {isSelf ? "Match Forfeited" : "Opponent Forfeited!"}
                 </div>
-                <div style={{ fontSize: 14, color: "var(--text-2)" }}>
+                <div style={{ fontSize: 14, color: "var(--text-2)", marginBottom: 24 }}>
                     {isSelf ? "You were disqualified due to anti-cheat violations." : "Your opponent forfeited. You win!"}
                 </div>
+                <button onClick={() => navigate('/play')} style={playAgainStyle}>Play Again</button>
             </div>
         );
     }
@@ -158,12 +160,15 @@ export function ResultPage() {
 
     const isA = match.player_a_id === user?.id;
     const myDelta = isA ? match.player_a_delta : match.player_b_delta;
+    const myScore = isA ? match.player_a_score : match.player_b_score;
+    const oppScore = isA ? match.player_b_score : match.player_a_score;
+    const mySubmission = isA ? match.player_a_submission : match.player_b_submission;
     const isWinner = match.winner_id === user?.id;
     const isDraw = match.winner_id === null && match.status === 'completed';
 
     return (
-        <div style={{ maxWidth: 500, margin: "10vh auto", padding: "2rem", textAlign: "center" }}>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>{isWinner ? "🏆" : isDraw ? "🤝" : "💀"}</div>
+        <div style={{ maxWidth: 550, margin: "6vh auto", padding: "2rem", textAlign: "center" }}>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>{isWinner ? "\uD83C\uDFC6" : isDraw ? "\uD83E\uDD1D" : "\uD83D\uDC80"}</div>
             <div style={{
                 fontSize: 24, fontWeight: 700, marginBottom: 8,
                 color: isWinner ? "var(--green)" : isDraw ? "var(--text-2)" : "var(--red)",
@@ -171,11 +176,53 @@ export function ResultPage() {
                 {isWinner ? "Victory!" : isDraw ? "Draw" : "Defeat"}
             </div>
             {myDelta != null && (
-                <div style={{ fontFamily: "var(--font-mono)", fontSize: 18, color: myDelta >= 0 ? "var(--green)" : "var(--red)", marginBottom: 16 }}>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: 18, color: myDelta >= 0 ? "var(--green)" : "var(--red)", marginBottom: 20 }}>
                     {myDelta >= 0 ? '+' : ''}{myDelta} Elo
                 </div>
             )}
-            <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 12, padding: "1rem", display: "inline-flex", gap: 32 }}>
+
+            {/* Score comparison */}
+            {myScore != null && oppScore != null && (
+                <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 12, padding: "1.25rem", marginBottom: 20 }}>
+                    <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 12 }}>Score</div>
+                    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 24, marginBottom: 12 }}>
+                        <div>
+                            <div style={{ fontFamily: "var(--font-mono)", fontSize: 28, fontWeight: 700, color: myScore >= oppScore ? "var(--green)" : "var(--text-2)" }}>{myScore}</div>
+                            <div style={{ fontSize: 12, color: "var(--text-3)" }}>You</div>
+                        </div>
+                        <div style={{ fontFamily: "var(--font-mono)", fontSize: 14, color: "var(--text-3)" }}>vs</div>
+                        <div>
+                            <div style={{ fontFamily: "var(--font-mono)", fontSize: 28, fontWeight: 700, color: oppScore > myScore ? "var(--red)" : "var(--text-2)" }}>{oppScore}</div>
+                            <div style={{ fontSize: 12, color: "var(--text-3)" }}>Opponent</div>
+                        </div>
+                    </div>
+
+                    {/* Score bar */}
+                    <div style={{ height: 8, background: "var(--surface-2)", borderRadius: 4, overflow: "hidden", display: "flex" }}>
+                        <div style={{ width: `${(myScore / (myScore + oppScore || 1)) * 100}%`, background: "var(--green)", transition: "width 0.5s ease" }} />
+                        <div style={{ flex: 1, background: "var(--red)" }} />
+                    </div>
+
+                    {/* Breakdown */}
+                    {mySubmission?.score && (
+                        <div style={{ marginTop: 16, display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+                            {[
+                                ["Tests", mySubmission.score.testScore, "/600"],
+                                ["Speed", mySubmission.score.speedBonus, "/200"],
+                                ["Efficiency", mySubmission.score.efficiencyBonus, "/200"],
+                            ].map(([label, val, max]) => (
+                                <div key={label} style={{ textAlign: "center" }}>
+                                    <div style={{ fontFamily: "var(--font-mono)", fontSize: 16, fontWeight: 600, color: "var(--text)" }}>{val ?? '—'}<span style={{ fontSize: 11, color: "var(--text-3)" }}>{max}</span></div>
+                                    <div style={{ fontSize: 11, color: "var(--text-3)", marginTop: 2 }}>{label}</div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Players */}
+            <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 12, padding: "1rem", display: "inline-flex", gap: 32, marginBottom: 24 }}>
                 <div style={{ textAlign: "center" }}>
                     <div style={{ fontSize: 13, color: "var(--text-2)" }}>{match.player_a?.username || 'Player A'}</div>
                     <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-3)" }}>{match.player_a?.elo}</div>
@@ -186,6 +233,16 @@ export function ResultPage() {
                     <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-3)" }}>{match.player_b?.elo}</div>
                 </div>
             </div>
+
+            <div>
+                <button onClick={() => navigate('/play')} style={playAgainStyle}>Play Again</button>
+            </div>
         </div>
     );
 }
+
+const playAgainStyle = {
+    padding: "12px 32px", borderRadius: 10, fontSize: 15, fontWeight: 600,
+    border: "none", background: "var(--accent)", color: "#fff",
+    cursor: "pointer", fontFamily: "var(--font-sans)", transition: "all 0.2s",
+};

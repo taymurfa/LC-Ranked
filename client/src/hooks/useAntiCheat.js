@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 
 export function useAntiCheat(socket, matchId) {
     const [tabWarnings, setTabWarnings] = useState(0);
-    const [faceOk, setFaceOk] = useState(true);
     const [acAlert, setAcAlert] = useState(null);
 
     useEffect(() => {
@@ -51,5 +50,5 @@ export function useAntiCheat(socket, matchId) {
         };
     }, [socket]);
 
-    return { tabWarnings, setTabWarnings, faceOk, acAlert, setAcAlert };
+    return { tabWarnings, setTabWarnings, acAlert, setAcAlert };
 }

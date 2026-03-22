@@ -3,6 +3,7 @@ import { io } from 'socket.io-client';
 import { useAuth } from './useAuth';
 
 let socketInstance = null;
+let currentToken = null;
 
 export function useSocket() {
     const { token } = useAuth();
@@ -11,7 +12,14 @@ export function useSocket() {
     useEffect(() => {
         if (!token) return;
 
+        // If token changed (different user or refreshed), reconnect
+        if (socketInstance && currentToken !== token) {
+            socketInstance.disconnect();
+            socketInstance = null;
+        }
+
         if (!socketInstance) {
+            currentToken = token;
             socketInstance = io({
                 auth: { token },
                 transports: ['websocket'],
@@ -24,9 +32,7 @@ export function useSocket() {
 
         socketRef.current = socketInstance;
 
-        return () => {
-            // Don't completely disconnect on unmount to allow cross-page socket events
-        };
+        return () => {};
     }, [token]);
 
     return socketRef.current;
@@ -37,5 +43,6 @@ export function disconnectSocket() {
     if (socketInstance) {
         socketInstance.disconnect();
         socketInstance = null;
+        currentToken = null;
     }
 }

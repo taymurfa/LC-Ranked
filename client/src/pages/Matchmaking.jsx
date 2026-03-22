@@ -14,9 +14,18 @@ export default function Matchmaking() {
     const [diff, setDiff] = useState(1);
     const [searching, setSearching] = useState(false);
     const [secs, setSecs] = useState(0);
+    const [queueCount, setQueueCount] = useState(0);
     const timerRef = useRef(null);
     const socket = useSocket();
     const navigate = useNavigate();
+
+    // Fetch queue stats periodically
+    useEffect(() => {
+        const fetchStats = () => fetch('/api/status').then(r => r.json()).then(d => setQueueCount(d.queueSize || 0)).catch(() => {});
+        fetchStats();
+        const interval = setInterval(fetchStats, 5000);
+        return () => clearInterval(interval);
+    }, []);
 
     useEffect(() => {
         if (!socket) return;
@@ -87,7 +96,7 @@ export default function Matchmaking() {
                 {!searching ? (
                     <>
                         <div style={{ display: "flex", justifyContent: "space-around", marginBottom: 20 }}>
-                            {[["2,847", "online now"], ["<45s", "avg wait"], ["1350–1420", "your bracket"]].map(([v, l]) => (
+                            {[[String(queueCount), "in queue"], ["<45s", "avg wait"], ["1350–1420", "your bracket"]].map(([v, l]) => (
                                 <div key={l} style={{ textAlign: "center" }}>
                                     <div style={{ fontFamily: "var(--font-mono)", fontSize: 20, fontWeight: 700, color: "var(--green)" }}>{v}</div>
                                     <div style={{ fontSize: 12, color: "var(--text-3)", marginTop: 2 }}>{l}</div>

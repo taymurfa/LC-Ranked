@@ -3,28 +3,10 @@ import { useSocket } from '../hooks/useSocket';
 import { useAntiCheat } from '../hooks/useAntiCheat';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-
-function CodeLine({ line }) {
-  const kws = ["class", "def", "if", "return", "not", "in", "del"];
-  const rest = line.trimStart();
-  const indentMatch = line.match(/^(\s*)/);
-  const indent = indentMatch ? indentMatch[1] : "";
-  const tokens = rest.split(/(\b\w+\b|[^\w\s]+|\s+)/g).filter(Boolean);
-
-  return (
-    <div style={{ fontFamily: "var(--font-mono)", fontSize: 13, lineHeight: "1.8", whiteSpace: "pre" }}>
-      {indent}{tokens.map((tok, i) => {
-        if (kws.includes(tok)) return <span key={i} style={{ color: "#bd93f9" }}>{tok}</span>;
-        if (/^[A-Z]/.test(tok)) return <span key={i} style={{ color: "#ffb86c" }}>{tok}</span>;
-        if (/^-?\d+$/.test(tok)) return <span key={i} style={{ color: "var(--amber)" }}>{tok}</span>;
-        if (tok === "self") return <span key={i} style={{ color: "#8be9fd" }}>{tok}</span>;
-        return <span key={i} style={{ color: "var(--text)" }}>{tok}</span>;
-      })}
-    </div>
-  );
-}
+import CodeEditor from '../components/CodeEditor';
 
 const LANGUAGES = ["Python 3", "JavaScript", "Java", "C++"];
+const LANG_KEYS = { "Python 3": "python3", "JavaScript": "javascript", "Java": "java", "C++": "cpp" };
 
 export default function Battle() {
   const socket = useSocket();
@@ -33,7 +15,7 @@ export default function Battle() {
   const [searchParams] = useSearchParams();
   const matchId = searchParams.get('id');
 
-  const { tabWarnings, faceOk, acAlert, setAcAlert } = useAntiCheat(socket, matchId);
+  const { tabWarnings, acAlert, setAcAlert } = useAntiCheat(socket, matchId);
 
   // Match state
   const [matchStarted, setMatchStarted] = useState(false);
@@ -42,17 +24,26 @@ export default function Battle() {
   const [myInfo, setMyInfo] = useState(null);
   const [opponentInfo, setOpponentInfo] = useState(null);
   const [opponentProgress, setOpponentProgress] = useState({ testsPassed: 0, testsTotal: 1 });
+  const [opponentSubmitted, setOpponentSubmitted] = useState(false);
+
+  // Problem state
+  const [problem, setProblem] = useState(null);
+  const [problemId, setProblemId] = useState(null);
 
   // Editor state
   const [code, setCode] = useState('# Write your solution here\n');
   const [language, setLanguage] = useState("Python 3");
   const [testsPassed, setTestsPassed] = useState(0);
-  const [testsTotal, setTestsTotal] = useState(5);
+  const [testsTotal, setTestsTotal] = useState(0);
+
+  // Run/Submit state
+  const [running, setRunning] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [testResults, setTestResults] = useState(null);
+  const [outputTab, setOutputTab] = useState('tests'); // 'tests' | 'output'
 
   const [showModal, setShowModal] = useState(false);
   const startTimeRef = useRef(null);
-  const codeRef = useRef(null);
 
   // Send match:ready when we have socket + matchId
   useEffect(() => {
@@ -75,6 +66,8 @@ export default function Battle() {
       setOpponentProgress({ testsPassed: tp, testsTotal: tt });
     };
 
+    const onOpponentSubmitted = () => setOpponentSubmitted(true);
+
     const onForfeit = ({ reason }) => {
       navigate(`/result?id=${matchId}&forfeit=self&reason=${reason}`);
     };
@@ -83,20 +76,28 @@ export default function Battle() {
       navigate(`/result?id=${matchId}&forfeit=opponent`);
     };
 
+    const onMatchCompleted = () => {
+      navigate(`/result?id=${matchId}`);
+    };
+
     socket.on('match:start', onMatchStart);
     socket.on('opponent:progress', onOpponentProgress);
+    socket.on('opponent:submitted', onOpponentSubmitted);
     socket.on('match:forfeit', onForfeit);
     socket.on('match:opponent_forfeit', onOpponentForfeit);
+    socket.on('match:completed', onMatchCompleted);
 
     return () => {
       socket.off('match:start', onMatchStart);
       socket.off('opponent:progress', onOpponentProgress);
+      socket.off('opponent:submitted', onOpponentSubmitted);
       socket.off('match:forfeit', onForfeit);
       socket.off('match:opponent_forfeit', onOpponentForfeit);
+      socket.off('match:completed', onMatchCompleted);
     };
   }, [socket, matchId, navigate]);
 
-  // Load match data from API to get player info
+  // Load match data + problem
   useEffect(() => {
     if (!matchId || !token) return;
     fetch(`/api/matches/${matchId}`, {
@@ -109,59 +110,112 @@ export default function Battle() {
           setMyInfo(isA ? data.player_a : data.player_b);
           setOpponentInfo(isA ? data.player_b : data.player_a);
         }
+        if (data.problem_id) {
+          setProblemId(data.problem_id);
+        }
       })
       .catch(() => {});
   }, [matchId, token, user?.id]);
 
+  // Fetch problem details
+  useEffect(() => {
+    if (!problemId) return;
+    fetch(`/api/problems/${problemId}`)
+      .then(r => r.json())
+      .then(data => {
+        setProblem(data);
+        // Set starter code for current language
+        const langKey = LANG_KEYS[language];
+        if (data.starter_code && data.starter_code[langKey]) {
+          setCode(data.starter_code[langKey]);
+        }
+      })
+      .catch(() => {});
+  }, [problemId]); // intentionally not depending on language here
+
+  // Update starter code when language changes
+  const handleLanguageChange = (newLang) => {
+    setLanguage(newLang);
+    const langKey = LANG_KEYS[newLang];
+    if (problem?.starter_code?.[langKey]) {
+      setCode(problem.starter_code[langKey]);
+    }
+  };
+
   // Countdown timer
   useEffect(() => {
     if (!matchStarted) return;
-    const t = setInterval(() => setTimeLeft(s => Math.max(0, s - 1)), 1000);
+    const t = setInterval(() => {
+      setTimeLeft(s => {
+        if (s <= 1) {
+          clearInterval(t);
+          // Auto-submit on timeout
+          handleSubmit();
+          return 0;
+        }
+        return s - 1;
+      });
+    }, 1000);
     return () => clearInterval(t);
   }, [matchStarted]);
 
-  // Show anti-cheat modal
   useEffect(() => {
     if (acAlert) setShowModal(true);
   }, [acAlert]);
 
-  // Report progress to opponent
-  const reportProgress = useCallback((passed, total) => {
-    if (socket && matchId) {
-      socket.emit('match:progress', { matchId, testsPassed: passed, testsTotal: total });
-    }
-  }, [socket, matchId]);
+  // Run tests (sample only)
+  const handleRunTests = async () => {
+    if (running || !token || !problemId) return;
+    setRunning(true);
+    setTestResults(null);
 
-  // Submit solution
+    try {
+      const res = await fetch('/api/execute/run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ matchId, problemId, code, language }),
+      });
+      const data = await res.json();
+      if (data.results) {
+        setTestResults(data.results);
+        setTestsPassed(data.passed);
+        setTestsTotal(data.total);
+        // Relay progress to opponent
+        if (socket && matchId) {
+          socket.emit('match:progress', { matchId, testsPassed: data.passed, testsTotal: data.total });
+        }
+      } else if (data.error) {
+        setTestResults([{ testCase: 0, passed: false, error: data.error }]);
+      }
+    } catch (err) {
+      setTestResults([{ testCase: 0, passed: false, error: err.message }]);
+    } finally {
+      setRunning(false);
+    }
+  };
+
+  // Submit (all tests, server-validated scoring)
   const handleSubmit = async () => {
     if (submitting || !token) return;
     setSubmitting(true);
 
-    const elapsed = startTimeRef.current
-      ? Math.floor((Date.now() - startTimeRef.current) / 1000)
-      : durationSeconds - timeLeft;
-
     try {
       const res = await fetch(`/api/matches/${matchId}/submit`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          matchId,
-          code,
-          language,
-          testsPassed,
-          testsTotal,
-          durationSeconds: elapsed,
-        }),
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ code, language }),
       });
       const data = await res.json();
       if (data.status === 'completed') {
         navigate(`/result?id=${matchId}`);
+      } else if (data.status === 'waiting') {
+        // Show test results while waiting
+        if (data.testResult?.results) {
+          setTestResults(data.testResult.results);
+          setTestsPassed(data.testResult.passed);
+          setTestsTotal(data.testResult.total);
+        }
       }
-      // If "waiting", stay on page — opponent hasn't submitted yet
     } catch (err) {
       console.error('Submit failed:', err);
     } finally {
@@ -182,6 +236,8 @@ export default function Battle() {
   const oppName = opponentInfo?.username || 'Opponent';
   const oppElo = opponentInfo?.elo || '—';
 
+  const diffColors = { easy: 'var(--green)', medium: 'var(--amber)', hard: 'var(--red)' };
+
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 52px)" }}>
       {/* Anti-cheat bar */}
@@ -192,7 +248,6 @@ export default function Battle() {
       }}>
         {[
           [tabOk ? "var(--green)" : "var(--amber)", !tabOk, `Tab: ${tabOk ? "focused" : `warned ×${tabWarnings}`}`],
-          [faceOk ? "var(--green)" : "var(--red)", !faceOk, faceOk ? "Face detected" : "Face not visible"],
           ["var(--green)", false, "Keystroke: normal"],
         ].map(([color, pulse, label], i) => (
           <div key={i} style={{ display: "flex", alignItems: "center", gap: 7 }}>
@@ -204,15 +259,9 @@ export default function Battle() {
             <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--text-2)" }}>{label}</span>
           </div>
         ))}
-
-        {acAlert && (
-          <div style={{
-            display: "flex", alignItems: "center", gap: 8,
-            background: "var(--amber-dim)", border: "1px solid rgba(255,211,42,0.3)",
-            borderRadius: 7, padding: "4px 12px",
-            fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--amber)",
-          }}>
-            {acAlert}
+        {opponentSubmitted && (
+          <div style={{ marginLeft: "auto", fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--amber)" }}>
+            Opponent has submitted
           </div>
         )}
       </div>
@@ -239,24 +288,21 @@ export default function Battle() {
               padding: "0 16px", borderBottom: "1px solid var(--border)",
               background: "var(--surface)", flexShrink: 0,
             }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <div>
-                  <div style={{ fontSize: 13, fontWeight: 500, color: "var(--text)" }}>{myName} <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--accent-bright)" }}>(you)</span></div>
-                  <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-3)" }}>{myElo}</div>
-                </div>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 500, color: "var(--text)" }}>{myName} <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--accent-bright)" }}>(you)</span></div>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-3)" }}>{myElo}</div>
               </div>
               <div style={{
                 fontFamily: "var(--font-mono)", fontSize: 18, fontWeight: 700, letterSpacing: 2,
                 color: urgent ? "var(--red)" : "var(--amber)",
                 animation: urgent ? "pulse 0.6s ease infinite" : "none",
               }}>{mins}:{String(secs).padStart(2, "0")}</div>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <div style={{ textAlign: "right" }}>
-                  <div style={{ fontSize: 13, fontWeight: 500, color: "var(--text)" }}>@{oppName}</div>
-                  <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-3)" }}>{oppElo}</div>
-                </div>
+              <div style={{ textAlign: "right" }}>
+                <div style={{ fontSize: 13, fontWeight: 500, color: "var(--text)" }}>@{oppName}</div>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-3)" }}>{oppElo}</div>
               </div>
             </div>
+
             {/* Opponent progress */}
             <div style={{ padding: "8px 16px", borderBottom: "1px solid var(--border)", flexShrink: 0 }}>
               <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-3)", marginBottom: 5, textTransform: "uppercase", letterSpacing: "0.6px" }}>Opponent progress</div>
@@ -264,30 +310,62 @@ export default function Battle() {
                 <div style={{ height: "100%", width: `${oppProgressPct}%`, background: "var(--red)", borderRadius: 2, transition: "width 0.3s ease" }} />
               </div>
             </div>
-            {/* Problem */}
+
+            {/* Problem content */}
             <div style={{ flex: 1, overflowY: "auto", padding: "1.25rem 1.5rem" }}>
-              <div style={{ fontSize: 20, fontWeight: 600, color: "var(--text)", letterSpacing: "-0.3px", marginBottom: 8 }}>LRU Cache</div>
-              <div style={{ fontSize: 14, color: "var(--text-2)", lineHeight: 1.8 }}>
-                <p>Design a data structure following the constraints of a Least Recently Used (LRU) cache.</p>
-                <p style={{ marginTop: 10 }}>Implement the LRUCache class:</p>
-                <ul style={{ marginTop: 8, paddingLeft: 20 }}>
-                  <li><code>LRUCache(int capacity)</code> — Initialize the LRU cache with positive size capacity.</li>
-                  <li><code>int get(int key)</code> — Return the value of the key if it exists, otherwise return -1.</li>
-                  <li><code>void put(int key, int value)</code> — Update or insert the value. When the cache reaches capacity, evict the least recently used key.</li>
-                </ul>
-              </div>
+              {problem ? (
+                <>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+                    <span style={{ fontSize: 20, fontWeight: 600, color: "var(--text)", letterSpacing: "-0.3px" }}>{problem.title}</span>
+                    <span style={{
+                      fontFamily: "var(--font-mono)", fontSize: 11, fontWeight: 600,
+                      color: diffColors[problem.difficulty] || "var(--text-2)",
+                      background: "var(--surface-2)", padding: "2px 8px", borderRadius: 4,
+                      textTransform: "capitalize",
+                    }}>{problem.difficulty}</span>
+                  </div>
+                  <div style={{ fontSize: 14, color: "var(--text-2)", lineHeight: 1.8, whiteSpace: "pre-wrap" }}>
+                    {problem.description}
+                  </div>
+
+                  {problem.examples && problem.examples.length > 0 && (
+                    <div style={{ marginTop: 16 }}>
+                      {problem.examples.map((ex, i) => (
+                        <div key={i} style={{ background: "var(--surface-2)", borderRadius: 8, padding: "12px 16px", marginBottom: 8, fontFamily: "var(--font-mono)", fontSize: 13 }}>
+                          <div style={{ color: "var(--text-3)", marginBottom: 4 }}>Example {i + 1}:</div>
+                          <div style={{ color: "var(--text)" }}>Input: {ex.input}</div>
+                          <div style={{ color: "var(--text)" }}>Output: {ex.output}</div>
+                          {ex.explanation && <div style={{ color: "var(--text-3)", marginTop: 4 }}>Explanation: {ex.explanation}</div>}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {problem.constraints && problem.constraints.length > 0 && (
+                    <div style={{ marginTop: 16 }}>
+                      <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>Constraints</div>
+                      <ul style={{ paddingLeft: 20, fontSize: 13, color: "var(--text-2)", lineHeight: 1.8 }}>
+                        {problem.constraints.map((c, i) => <li key={i}>{c}</li>)}
+                      </ul>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div style={{ color: "var(--text-3)" }}>Loading problem...</div>
+              )}
             </div>
           </div>
 
-          {/* Right: editor */}
+          {/* Right: editor + output */}
           <div style={{ display: "flex", flexDirection: "column", overflow: "hidden" }}>
+            {/* Editor toolbar */}
             <div style={{
               height: 40, display: "flex", alignItems: "center", justifyContent: "space-between",
               padding: "0 14px", borderBottom: "1px solid var(--border)", background: "var(--surface)", flexShrink: 0,
             }}>
               <select
                 value={language}
-                onChange={e => setLanguage(e.target.value)}
+                onChange={e => handleLanguageChange(e.target.value)}
                 style={{
                   fontFamily: "var(--font-mono)", fontSize: 12, background: "var(--surface-2)",
                   border: "1px solid var(--border)", color: "var(--text-2)", borderRadius: 6,
@@ -297,42 +375,76 @@ export default function Battle() {
                 {LANGUAGES.map(l => <option key={l} value={l}>{l}</option>)}
               </select>
               <div style={{ fontSize: 12, color: "var(--text-2)", fontFamily: "var(--font-mono)" }}>
-                Tests: <span style={{ color: testsPassed === testsTotal ? "var(--green)" : "var(--text-2)" }}>{testsPassed}/{testsTotal}</span>
+                Tests: <span style={{ color: testsPassed === testsTotal && testsTotal > 0 ? "var(--green)" : "var(--text-2)" }}>{testsPassed}/{testsTotal}</span>
               </div>
             </div>
 
-            <textarea
-              ref={codeRef}
-              value={code}
-              onChange={e => setCode(e.target.value)}
-              spellCheck={false}
-              style={{
-                flex: 1, padding: "14px 16px", background: "var(--bg)",
-                color: "var(--text)", fontFamily: "var(--font-mono)", fontSize: 13,
-                lineHeight: "1.8", border: "none", outline: "none", resize: "none",
-                overflowY: "auto",
-              }}
-            />
+            {/* Code editor */}
+            <div style={{ flex: 1, minHeight: 0 }}>
+              <CodeEditor
+                value={code}
+                onChange={setCode}
+                language={language}
+              />
+            </div>
 
+            {/* Output panel */}
+            {testResults && (
+              <div style={{
+                maxHeight: 200, overflowY: "auto", borderTop: "1px solid var(--border)",
+                background: "var(--surface-2)", fontSize: 12, fontFamily: "var(--font-mono)",
+              }}>
+                <div style={{ padding: "8px 14px", borderBottom: "1px solid var(--border)", color: "var(--text-3)", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  Test Results
+                </div>
+                {testResults.map((r, i) => (
+                  <div key={i} style={{
+                    padding: "6px 14px", borderBottom: "1px solid var(--border)",
+                    display: "flex", gap: 12, alignItems: "flex-start",
+                  }}>
+                    <span style={{ color: r.passed ? "var(--green)" : "var(--red)", fontWeight: 700, flexShrink: 0 }}>
+                      {r.passed ? "PASS" : "FAIL"}
+                    </span>
+                    <div style={{ flex: 1, color: "var(--text-2)" }}>
+                      {r.error ? (
+                        <div style={{ color: "var(--red)" }}>{r.error}</div>
+                      ) : (
+                        <>
+                          <div>Input: {JSON.stringify(r.input)}</div>
+                          <div>Expected: {JSON.stringify(r.expected)}</div>
+                          {!r.passed && <div>Got: {JSON.stringify(r.actual)}</div>}
+                          {r.execTime != null && <span style={{ color: "var(--text-3)" }}> ({r.execTime}s)</span>}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Action bar */}
             <div style={{
               height: 50, display: "flex", alignItems: "center", gap: 10,
               padding: "0 14px", borderTop: "1px solid var(--border)",
               background: "var(--surface)", flexShrink: 0,
             }}>
               <button
-                onClick={() => reportProgress(testsPassed, testsTotal)}
+                onClick={handleRunTests}
+                disabled={running}
                 style={{
                   padding: "7px 16px", borderRadius: 7, fontSize: 13, fontWeight: 600,
                   border: "1px solid var(--border-2)", background: "transparent",
-                  color: "var(--text-2)", cursor: "pointer", fontFamily: "var(--font-sans)",
+                  color: running ? "var(--text-3)" : "var(--text-2)",
+                  cursor: running ? "not-allowed" : "pointer", fontFamily: "var(--font-sans)",
                 }}
-              >Run tests</button>
+              >{running ? "Running..." : "Run tests"}</button>
               <button
                 onClick={handleSubmit}
                 disabled={submitting}
                 style={{
                   padding: "7px 18px", borderRadius: 7, fontSize: 13, fontWeight: 600,
-                  border: "none", background: submitting ? "var(--surface-2)" : "var(--green)",
+                  border: "none",
+                  background: submitting ? "var(--surface-2)" : "var(--green)",
                   color: submitting ? "var(--text-2)" : "#000",
                   cursor: submitting ? "not-allowed" : "pointer", fontFamily: "var(--font-sans)",
                 }}
@@ -342,6 +454,7 @@ export default function Battle() {
         </div>
       )}
 
+      {/* Anti-cheat modal */}
       {showModal && (
         <div style={{
           position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", zIndex: 200,
@@ -354,9 +467,7 @@ export default function Battle() {
           }}>
             <div style={{ fontSize: 36, marginBottom: 14 }}>&#9888;&#65039;</div>
             <div style={{ fontSize: 20, fontWeight: 700, color: "var(--red)", marginBottom: 8 }}>Anti-cheat Warning</div>
-            <div style={{ fontSize: 14, color: "var(--text-2)", lineHeight: 1.7, marginBottom: 12 }}>
-              {acAlert}
-            </div>
+            <div style={{ fontSize: 14, color: "var(--text-2)", lineHeight: 1.7, marginBottom: 12 }}>{acAlert}</div>
             <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--amber)", marginBottom: 20 }}>
               3 violations = automatic forfeit
             </div>

@@ -10,6 +10,8 @@ import profileRoutes from "./routes/profiles.js";
 import matchRoutes from "./routes/matches.js";
 import leaderboardRoutes from "./routes/leaderboard.js";
 import matchmakingRoutes from "./routes/matchmaking.js";
+import problemRoutes from "./routes/problems.js";
+import executeRoutes from "./routes/execute.js";
 import { initSocket } from "./socket.js";
 import { queueSize } from "./services/matchmaking.js";
 
@@ -34,6 +36,8 @@ app.use("/api/profiles", profileRoutes);
 app.use("/api/matches", matchRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
 app.use("/api/matchmaking", matchmakingRoutes);
+app.use("/api/problems", problemRoutes);
+app.use("/api/execute", executeRoutes);
 
 // Health / status
 app.get("/api/status", (req, res) => {
@@ -50,7 +54,8 @@ app.use((err, req, res, next) => {
 });
 
 // ── Socket.IO ──────────────────────────────────────────────────────────────
-initSocket(server);
+const io = initSocket(server);
+app.set("io", io);
 
 // ── Start ──────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3001;
