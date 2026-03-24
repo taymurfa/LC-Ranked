@@ -5,6 +5,8 @@ import { useAuth } from '../hooks/useAuth';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import CodeEditor from '../components/CodeEditor';
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || '';
+
 const LANGUAGES = ["Python 3", "JavaScript", "Java", "C++"];
 const LANG_KEYS = { "Python 3": "python3", "JavaScript": "javascript", "Java": "java", "C++": "cpp" };
 
@@ -100,7 +102,7 @@ export default function Battle() {
   // Load match data + problem
   useEffect(() => {
     if (!matchId || !token) return;
-    fetch(`/api/matches/${matchId}`, {
+    fetch(`${BACKEND_URL}/api/matches/${matchId}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(r => r.json())
@@ -120,7 +122,7 @@ export default function Battle() {
   // Fetch problem details
   useEffect(() => {
     if (!problemId) return;
-    fetch(`/api/problems/${problemId}`)
+    fetch(`${BACKEND_URL}/api/problems/${problemId}`)
       .then(r => r.json())
       .then(data => {
         setProblem(data);
@@ -170,7 +172,7 @@ export default function Battle() {
     setTestResults(null);
 
     try {
-      const res = await fetch('/api/execute/run', {
+      const res = await fetch(`${BACKEND_URL}/api/execute/run`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ matchId, problemId, code, language }),
@@ -200,7 +202,7 @@ export default function Battle() {
     setSubmitting(true);
 
     try {
-      const res = await fetch(`/api/matches/${matchId}/submit`, {
+      const res = await fetch(`${BACKEND_URL}/api/matches/${matchId}/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ code, language }),

@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { useSocket } from "../hooks/useSocket";
 import { useNavigate } from "react-router-dom";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || '';
+
 const MODES = [
     { icon: "⚔", name: "Ranked", desc: "Earn or lose Elo", k: "K=24 · Medium" },
     { icon: "◎", name: "Casual", desc: "No rating on the line", k: "No Elo change" },
@@ -21,7 +23,7 @@ export default function Matchmaking() {
 
     // Fetch queue stats periodically
     useEffect(() => {
-        const fetchStats = () => fetch('/api/status').then(r => r.json()).then(d => setQueueCount(d.queueSize || 0)).catch(() => {});
+        const fetchStats = () => fetch(`${BACKEND_URL}/api/status`).then(r => r.json()).then(d => setQueueCount(d.queueSize || 0)).catch(() => {});
         fetchStats();
         const interval = setInterval(fetchStats, 5000);
         return () => clearInterval(interval);

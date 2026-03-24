@@ -2,6 +2,8 @@ import { useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from './useAuth';
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || '';
+
 let socketInstance = null;
 let currentToken = null;
 
@@ -20,7 +22,7 @@ export function useSocket() {
 
         if (!socketInstance) {
             currentToken = token;
-            socketInstance = io({
+            socketInstance = io(BACKEND_URL, {
                 auth: { token },
                 transports: ['websocket'],
             });

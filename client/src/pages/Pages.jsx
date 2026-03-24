@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || '';
+
 export function ProfilePage() {
     const { token } = useAuth();
     const [profile, setProfile] = useState(null);
@@ -12,8 +14,8 @@ export function ProfilePage() {
         if (!token) return;
 
         Promise.all([
-            fetch('/api/profiles/me', { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
-            fetch('/api/profiles/me/matches', { headers: { Authorization: `Bearer ${token}` } })
+            fetch(`${BACKEND_URL}/api/profiles/me`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
+            fetch(`${BACKEND_URL}/api/profiles/me/matches`, { headers: { Authorization: `Bearer ${token}` } })
                 .then(r => r.ok ? r.json() : { matches: [] })
                 .catch(() => ({ matches: [] })),
         ]).then(([profileData, matchData]) => {
@@ -77,7 +79,7 @@ export function LeaderboardPage() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch('/api/leaderboard')
+        fetch(`${BACKEND_URL}/api/leaderboard`)
             .then(r => r.json())
             .then(data => setPlayers(data.players || []))
             .catch(() => {})
@@ -127,7 +129,7 @@ export function ResultPage() {
 
     useEffect(() => {
         if (!matchId || !token) { setLoading(false); return; }
-        fetch(`/api/matches/${matchId}`, {
+        fetch(`${BACKEND_URL}/api/matches/${matchId}`, {
             headers: { Authorization: `Bearer ${token}` },
         })
             .then(r => r.json())
