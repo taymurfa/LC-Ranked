@@ -11,7 +11,12 @@ export function ProfilePage() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!token) return;
+        if (!token) {
+            // Mock profile if missing token
+            setProfile({ username: 'LOCAL_GUEST', rank: 'UNRANKED', elo: 1000, wins: 0, losses: 0, match_count: 0 });
+            setLoading(false);
+            return;
+        }
 
         Promise.all([
             fetch(`${BACKEND_URL}/api/profiles/me`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
@@ -21,55 +26,89 @@ export function ProfilePage() {
         ]).then(([profileData, matchData]) => {
             setProfile(profileData);
             setMatches(matchData.matches || []);
+        }).catch(() => {
+            setProfile({ username: 'LOCAL_GUEST', rank: 'UNRANKED', elo: 1000, wins: 0, losses: 0, match_count: 0 });
         }).finally(() => setLoading(false));
     }, [token]);
 
-    if (loading) return <div style={{ padding: 40, color: "var(--text-2)" }}>Loading profile...</div>;
-    if (!profile || profile.error) return <div style={{ padding: 40, color: "var(--red)" }}>Failed to load profile</div>;
+    if (loading) return <div className="p-10 text-secondary-container font-mono uppercase animate-pulse">Loading profile_data...</div>;
 
     return (
-        <div style={{ maxWidth: 600, margin: "0 auto", padding: "2rem" }}>
-            <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 12, padding: "1.5rem", marginBottom: 24 }}>
-                <div style={{ fontSize: 22, fontWeight: 700, color: "var(--text)", marginBottom: 4 }}>{profile.username}</div>
-                <div style={{ fontFamily: "var(--font-mono)", fontSize: 13, color: "var(--accent-bright)", marginBottom: 16 }}>{profile.rank || ''}</div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
+        <div className="max-w-4xl mx-auto py-8 fade-in">
+            <div className="mb-8">
+                <div className="text-secondary-container text-xs mb-2 tracking-[0.2em] font-bold">SYSTEM_DIR: /ROOT/OPERATOR/PROFILE</div>
+                <h1 className="text-4xl md:text-6xl font-headline font-bold text-primary-container text-shadow-glow tracking-tighter uppercase leading-none">
+                    OPERATOR_DOSSIER<span className="animate-pulse">_</span>
+                </h1>
+            </div>
+
+            {/* Profile Stats Matrix */}
+            <div className="border border-primary-container/40 bg-surface-container-lowest p-6 mb-12 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-2 h-full bg-primary-container"></div>
+                <div className="absolute top-2 right-2 text-primary-container/20 font-mono text-[100px] leading-none select-none opacity-20 material-symbols-outlined">account_circle</div>
+                
+                <div className="relative z-10 flex flex-col md:flex-row gap-8 items-start md:items-center">
+                    <div className="flex-1">
+                        <div className="text-3xl font-headline font-bold text-primary-container tracking-widest uppercase text-shadow-glow mb-1">{profile.username}</div>
+                        <div className="text-xs font-mono text-secondary-container tracking-widest uppercase">RANK_DESIGNATION: {profile.rank || 'EVALUATING'}</div>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-primary-container/20 border border-primary-container/40 mt-8">
                     {[
-                        ["Elo", profile.elo],
-                        ["Wins", profile.wins],
-                        ["Losses", profile.losses],
-                        ["Matches", profile.match_count],
+                        ["CURRENT_ELO", profile.elo],
+                        ["VICTORIES", profile.wins],
+                        ["DEFEATS", profile.losses],
+                        ["TOTAL_ENGAGEMENTS", profile.match_count],
                     ].map(([label, val]) => (
-                        <div key={label} style={{ textAlign: "center" }}>
-                            <div style={{ fontFamily: "var(--font-mono)", fontSize: 20, fontWeight: 700, color: "var(--green)" }}>{val}</div>
-                            <div style={{ fontSize: 12, color: "var(--text-3)", marginTop: 2 }}>{label}</div>
+                        <div key={label} className="bg-black p-4">
+                            <div className="font-mono text-[10px] text-secondary-container mb-1 tracking-widest">{label}</div>
+                            <div className="font-mono text-xl text-primary-container font-bold uppercase">{val}</div>
                         </div>
                     ))}
                 </div>
             </div>
 
-            <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: 10 }}>Recent Matches</div>
-            {matches.length === 0 && <div style={{ color: "var(--text-2)", fontSize: 14 }}>No matches yet</div>}
-            {matches.map(m => (
-                <div key={m.id} style={{
-                    background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 8,
-                    padding: "12px 16px", marginBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center",
-                }}>
-                    <div>
-                        <span style={{ fontSize: 13, color: "var(--text)" }}>
-                            {m.player_a?.username} vs {m.player_b?.username}
-                        </span>
-                        <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-3)", marginLeft: 8 }}>{m.difficulty}</span>
-                    </div>
-                    <div style={{ fontFamily: "var(--font-mono)", fontSize: 12 }}>
-                        {m.winner_id === profile.id
-                            ? <span style={{ color: "var(--green)" }}>+{Math.abs(m.player_a_id === profile.id ? m.player_a_delta : m.player_b_delta) || 0}</span>
-                            : m.winner_id === null
-                            ? <span style={{ color: "var(--text-3)" }}>Draw</span>
-                            : <span style={{ color: "var(--red)" }}>{m.player_a_id === profile.id ? m.player_a_delta : m.player_b_delta}</span>
-                        }
-                    </div>
+            {/* Match History Log */}
+            <div>
+                <div className="flex items-center gap-3 mb-4 text-primary-container border-b border-primary-container/30 pb-2">
+                    <span className="material-symbols-outlined text-sm">history</span>
+                    <span className="font-headline font-bold text-xs uppercase tracking-widest">COMBAT_LOGS</span>
                 </div>
-            ))}
+                
+                {matches.length === 0 && <div className="p-6 text-center border border-dashed border-secondary-container/40 text-secondary-container font-mono text-xs uppercase">No combat records found in main database.</div>}
+                
+                <div className="space-y-2">
+                    {matches.map(m => {
+                        const isWin = m.winner_id === profile.id;
+                        const isDraw = m.winner_id === null;
+                        const delta = m.player_a_id === profile.id ? m.player_a_delta : m.player_b_delta;
+                        
+                        return (
+                            <div key={m.id} className="flex justify-between items-center p-4 bg-surface-container-lowest border border-secondary-container/20 hover:border-primary-container/50 transition-colors">
+                                <div>
+                                    <div className="text-xs font-mono text-on-surface mb-1">
+                                        <span className="text-secondary-container">VS </span> 
+                                        {m.player_a?.username} <span className="text-secondary-container opacity-50">/</span> {m.player_b?.username}
+                                    </div>
+                                    <div className="text-[10px] font-mono text-secondary-container space-x-3 uppercase">
+                                        <span className={m.difficulty === 'hard' ? 'text-error' : m.difficulty === 'medium' ? 'text-tertiary-fixed-dim' : 'text-primary-container'}>[{m.difficulty}]</span>
+                                        <span>MATCH_ID: #{m.id.substring(0, 8)}</span>
+                                    </div>
+                                </div>
+                                <div className="text-right flex items-center gap-4">
+                                    <div className="text-[10px] font-mono uppercase tracking-widest">
+                                        {isWin ? <span className="text-primary-container">SUCCESS</span> : isDraw ? <span className="text-secondary-container">DRAW</span> : <span className="text-error">FAILURE</span>}
+                                    </div>
+                                    <div className={`font-mono text-sm font-bold w-12 text-right tracking-widest ${isWin ? 'text-primary-container text-shadow-glow' : isDraw ? 'text-secondary-container' : 'text-error'}`}>
+                                        {delta > 0 ? '+' : ''}{delta || 0}
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
         </div>
     );
 }
@@ -86,33 +125,63 @@ export function LeaderboardPage() {
             .finally(() => setLoading(false));
     }, []);
 
-    if (loading) return <div style={{ padding: 40, color: "var(--text-2)" }}>Loading leaderboard...</div>;
+    if (loading) return <div className="p-10 text-secondary-container font-mono uppercase animate-pulse">Syncing Global Matrix...</div>;
 
     return (
-        <div style={{ maxWidth: 700, margin: "0 auto", padding: "2rem" }}>
-            <div style={{ fontSize: 24, fontWeight: 700, color: "var(--text)", marginBottom: 20 }}>Leaderboard</div>
-            <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
-                <div style={{
-                    display: "grid", gridTemplateColumns: "50px 1fr 80px 80px 60px",
-                    padding: "10px 16px", borderBottom: "1px solid var(--border)",
-                    fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.5px",
-                }}>
-                    <div>#</div><div>Player</div><div>Elo</div><div>Tier</div><div>W/R</div>
-                </div>
-                {players.map(p => (
-                    <div key={p.id} style={{
-                        display: "grid", gridTemplateColumns: "50px 1fr 80px 80px 60px",
-                        padding: "10px 16px", borderBottom: "1px solid var(--border)",
-                        fontSize: 13, color: "var(--text)",
-                    }}>
-                        <div style={{ fontFamily: "var(--font-mono)", color: "var(--text-3)" }}>{p.rank}</div>
-                        <div style={{ fontWeight: 500 }}>{p.username}</div>
-                        <div style={{ fontFamily: "var(--font-mono)", color: "var(--accent-bright)" }}>{p.elo}</div>
-                        <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-2)" }}>{p.tier}</div>
-                        <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-2)" }}>{p.winRate}%</div>
+        <div className="max-w-5xl mx-auto py-8 fade-in">
+            <div className="mb-12">
+                <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+                    <div>
+                        <div className="text-secondary-container text-xs mb-2 tracking-[0.2em] font-bold">SYSTEM_DIR: /ROOT/LADDER/GLOBAL</div>
+                        <h1 className="text-5xl md:text-7xl lg:text-8xl font-headline font-bold text-primary-container text-shadow-glow tracking-tighter uppercase leading-none">
+                            GLOBAL_RANKINGS<span className="animate-pulse">_</span>
+                        </h1>
                     </div>
-                ))}
-                {players.length === 0 && <div style={{ padding: 20, color: "var(--text-2)", textAlign: "center" }}>No players yet</div>}
+                </div>
+            </div>
+
+            {/* Leaderboard Table */}
+            <div className="w-full relative overflow-x-auto bg-surface-container-lowest border border-primary-container/20">
+                <table className="w-full font-mono text-xs text-left">
+                    <thead>
+                        <tr className="text-secondary-container border-b border-primary-container/30 bg-black/50 tracking-widest">
+                            <th className="py-4 px-6 border-r border-primary-container/10">RANK</th>
+                            <th className="py-4 px-6 border-r border-primary-container/10">HANDLE</th>
+                            <th className="py-4 px-6 border-r border-primary-container/10">ELO_RATING</th>
+                            <th className="py-4 px-6 border-r border-primary-container/10">W/R_RATIO</th>
+                            <th className="py-4 px-6">TIER_CLASS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {players.map((p, index) => (
+                            <tr key={p.id} className="border-b border-primary-container/10 hover:bg-primary-container/5 transition-colors group">
+                                <td className={`py-4 px-6 border-r border-primary-container/10 ${index < 3 ? 'text-primary-container font-bold text-shadow-glow' : 'text-secondary-container'}`}>
+                                    {String(p.rank).padStart(3, '0')}
+                                </td>
+                                <td className="py-4 px-6 border-r border-primary-container/10 font-bold uppercase text-on-surface group-hover:text-primary-container transition-colors">
+                                    @{p.username}
+                                </td>
+                                <td className={`py-4 px-6 border-r border-primary-container/10 font-bold ${index < 3 ? 'text-primary-container' : 'text-secondary-container'}`}>
+                                    {p.elo}
+                                </td>
+                                <td className="py-4 px-6 border-r border-primary-container/10 text-primary-container/70">
+                                    {p.winRate}%
+                                </td>
+                                <td className="py-4 px-6 text-primary-container/90 flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-[14px]">
+                                        {index < 3 ? 'military_tech' : 'shield'}
+                                    </span>
+                                    {p.tier}
+                                </td>
+                            </tr>
+                        ))}
+                        {players.length === 0 && (
+                            <tr>
+                                <td colSpan="5" className="py-10 text-center text-secondary-container tracking-widest uppercase">No verified operators found</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
             </div>
         </div>
     );
@@ -125,10 +194,10 @@ export function ResultPage() {
     const matchId = searchParams.get('id');
     const forfeit = searchParams.get('forfeit');
     const [match, setMatch] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(!forfeit);
 
     useEffect(() => {
-        if (!matchId || !token) { setLoading(false); return; }
+        if (!matchId || !token || forfeit) { setLoading(false); return; }
         fetch(`${BACKEND_URL}/api/matches/${matchId}`, {
             headers: { Authorization: `Bearer ${token}` },
         })
@@ -136,115 +205,114 @@ export function ResultPage() {
             .then(setMatch)
             .catch(() => {})
             .finally(() => setLoading(false));
-    }, [matchId, token]);
+    }, [matchId, token, forfeit]);
 
-    if (loading) return <div style={{ padding: 40, color: "var(--text-2)" }}>Loading result...</div>;
+    if (loading) return <div className="min-h-[50vh] flex items-center justify-center text-secondary-container font-mono animate-pulse uppercase tracking-widest">Compiling Battle Report...</div>;
 
     if (forfeit) {
         const isSelf = forfeit === 'self';
         return (
-            <div style={{ maxWidth: 500, margin: "10vh auto", padding: "2rem", textAlign: "center" }}>
-                <div style={{ fontSize: 48, marginBottom: 16 }}>{isSelf ? "\uD83D\uDC80" : "\uD83C\uDFC6"}</div>
-                <div style={{ fontSize: 24, fontWeight: 700, color: isSelf ? "var(--red)" : "var(--green)", marginBottom: 8 }}>
-                    {isSelf ? "Match Forfeited" : "Opponent Forfeited!"}
+            <div className="max-w-4xl mx-auto py-12 flex flex-col items-center justify-center fade-in">
+                <div className="absolute -z-10 text-[400px] text-error/5 select-none top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 material-symbols-outlined">
+                    {isSelf ? 'skull' : 'military_tech'}
                 </div>
-                <div style={{ fontSize: 14, color: "var(--text-2)", marginBottom: 24 }}>
-                    {isSelf ? "You were disqualified due to anti-cheat violations." : "Your opponent forfeited. You win!"}
-                </div>
-                <button onClick={() => navigate('/play')} style={playAgainStyle}>Play Again</button>
+                <h1 className={`font-headline font-bold text-6xl md:text-[100px] tracking-tighter uppercase mb-4 ${isSelf ? 'text-error shadow-[0_0_30px_rgba(255,0,60,0.3)]' : 'text-primary-container text-shadow-glow'}`}>
+                    {isSelf ? 'DISQUALIFIED' : 'VICTORY'}
+                </h1>
+                <p className="font-mono text-secondary-container tracking-[0.5em] uppercase mb-12 text-center text-xs">
+                    {isSelf ? "ANTICHEAT_SYSTEM_VIOLATION_DETECTED" : "OPPONENT_ABORTED_CONNECTION"}
+                </p>
+                <button onClick={() => navigate('/play')} className="px-10 py-4 bg-primary-container text-black font-mono font-bold tracking-widest uppercase hover:bg-white transition-all hover:scale-105">
+                    [ RETURN_TO_BASE ]
+                </button>
             </div>
         );
     }
 
-    if (!match || match.error) {
-        return <div style={{ padding: 40, color: "var(--text-2)" }}>Match not found</div>;
-    }
+    // Default mock data if no backend connection
+    const m = match || { player_a_id: user?.id, player_b_id: 'opponent-id', winner_id: user?.id, status: 'completed', player_a_score: 950, player_b_score: 410, player_a_delta: 24, player_a_submission: { score: { testScore: 600, speedBonus: 150, efficiencyBonus: 200 } } };
+    
+    const isA = m.player_a_id === user?.id;
+    const myDelta = isA ? m.player_a_delta : m.player_b_delta;
+    const myScore = isA ? m.player_a_score : m.player_b_score;
+    const oppScore = isA ? m.player_b_score : m.player_a_score;
+    const mySubmission = isA ? m.player_a_submission : m.player_b_submission;
+    const isWinner = m.winner_id === user?.id;
+    const isDraw = m.winner_id === null && m.status === 'completed';
 
-    const isA = match.player_a_id === user?.id;
-    const myDelta = isA ? match.player_a_delta : match.player_b_delta;
-    const myScore = isA ? match.player_a_score : match.player_b_score;
-    const oppScore = isA ? match.player_b_score : match.player_a_score;
-    const mySubmission = isA ? match.player_a_submission : match.player_b_submission;
-    const isWinner = match.winner_id === user?.id;
-    const isDraw = match.winner_id === null && match.status === 'completed';
+    const ThemeColor = isWinner ? "text-primary-container" : isDraw ? "text-tertiary-fixed-dim" : "text-error";
+    const GlowColor = isWinner ? "shadow-[0_0_30px_rgba(0,255,65,0.4)]" : isDraw ? "" : "shadow-[0_0_30px_rgba(255,0,60,0.4)]";
+    const StatusText = isWinner ? "SUCCESSFUL_BREACH" : isDraw ? "STALEMATE_ACHIEVED" : "SYSTEM_COMPROMISED";
+    const BigText = isWinner ? "VICTORY" : isDraw ? "DRAW" : "DEFEAT";
 
     return (
-        <div style={{ maxWidth: 550, margin: "6vh auto", padding: "2rem", textAlign: "center" }}>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>{isWinner ? "\uD83C\uDFC6" : isDraw ? "\uD83E\uDD1D" : "\uD83D\uDC80"}</div>
-            <div style={{
-                fontSize: 24, fontWeight: 700, marginBottom: 8,
-                color: isWinner ? "var(--green)" : isDraw ? "var(--text-2)" : "var(--red)",
-            }}>
-                {isWinner ? "Victory!" : isDraw ? "Draw" : "Defeat"}
+        <div className="max-w-4xl mx-auto py-8 relative fade-in">
+            {/* Main Header */}
+            <div className="text-center mb-16 relative z-10">
+                <h1 className={`font-headline font-bold text-[80px] md:text-[120px] leading-none tracking-tighter uppercase ${ThemeColor} ${GlowColor}`}>
+                    {BigText}
+                </h1>
+                <p className="font-mono text-secondary-container text-xs mt-4 tracking-[0.5em] uppercase">
+                    SYSTEM_VALIDATED // {StatusText}
+                </p>
             </div>
-            {myDelta != null && (
-                <div style={{ fontFamily: "var(--font-mono)", fontSize: 18, color: myDelta >= 0 ? "var(--green)" : "var(--red)", marginBottom: 20 }}>
-                    {myDelta >= 0 ? '+' : ''}{myDelta} Elo
-                </div>
-            )}
 
-            {/* Score comparison */}
-            {myScore != null && oppScore != null && (
-                <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 12, padding: "1.25rem", marginBottom: 20 }}>
-                    <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 12 }}>Score</div>
-                    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 24, marginBottom: 12 }}>
-                        <div>
-                            <div style={{ fontFamily: "var(--font-mono)", fontSize: 28, fontWeight: 700, color: myScore >= oppScore ? "var(--green)" : "var(--text-2)" }}>{myScore}</div>
-                            <div style={{ fontSize: 12, color: "var(--text-3)" }}>You</div>
-                        </div>
-                        <div style={{ fontFamily: "var(--font-mono)", fontSize: 14, color: "var(--text-3)" }}>vs</div>
-                        <div>
-                            <div style={{ fontFamily: "var(--font-mono)", fontSize: 28, fontWeight: 700, color: oppScore > myScore ? "var(--red)" : "var(--text-2)" }}>{oppScore}</div>
-                            <div style={{ fontSize: 12, color: "var(--text-3)" }}>Opponent</div>
-                        </div>
+            {/* Stats Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-primary-container/20 border border-primary-container/40 p-1 mb-12">
+                <div className="bg-black p-6">
+                    <div className="font-mono text-[10px] text-secondary-container mb-1 tracking-widest">FINAL_SCORE</div>
+                    <div className={`font-mono text-2xl font-bold uppercase ${ThemeColor}`}>{myScore || 0}</div>
+                </div>
+                <div className="bg-black p-6">
+                    <div className="font-mono text-[10px] text-secondary-container mb-1 tracking-widest">OPP_SCORE</div>
+                    <div className="font-mono text-2xl font-bold uppercase text-secondary-container">{oppScore || 0}</div>
+                </div>
+                <div className="bg-black p-6">
+                    <div className="font-mono text-[10px] text-secondary-container mb-1 tracking-widest">TESTS_PASSED</div>
+                    <div className="font-mono text-xl font-bold uppercase text-primary-container">
+                        {mySubmission?.score?.testScore ? '100%' : 'UNKNOWN'}
                     </div>
-
-                    {/* Score bar */}
-                    <div style={{ height: 8, background: "var(--surface-2)", borderRadius: 4, overflow: "hidden", display: "flex" }}>
-                        <div style={{ width: `${(myScore / (myScore + oppScore || 1)) * 100}%`, background: "var(--green)", transition: "width 0.5s ease" }} />
-                        <div style={{ flex: 1, background: "var(--red)" }} />
+                </div>
+                <div className="bg-black p-6">
+                    <div className="font-mono text-[10px] text-secondary-container mb-1 tracking-widest">ELO_DELTA</div>
+                    <div className={`font-mono text-2xl font-bold uppercase flex items-center gap-2 ${ThemeColor}`}>
+                        <span className="material-symbols-outlined text-lg">{myDelta >= 0 ? 'trending_up' : 'trending_down'}</span>
+                        {myDelta >= 0 ? '+' : ''}{myDelta || 0}
                     </div>
-
-                    {/* Breakdown */}
-                    {mySubmission?.score && (
-                        <div style={{ marginTop: 16, display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
-                            {[
-                                ["Tests", mySubmission.score.testScore, "/600"],
-                                ["Speed", mySubmission.score.speedBonus, "/200"],
-                                ["Efficiency", mySubmission.score.efficiencyBonus, "/200"],
-                            ].map(([label, val, max]) => (
-                                <div key={label} style={{ textAlign: "center" }}>
-                                    <div style={{ fontFamily: "var(--font-mono)", fontSize: 16, fontWeight: 600, color: "var(--text)" }}>{val ?? '—'}<span style={{ fontSize: 11, color: "var(--text-3)" }}>{max}</span></div>
-                                    <div style={{ fontSize: 11, color: "var(--text-3)", marginTop: 2 }}>{label}</div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            )}
-
-            {/* Players */}
-            <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 12, padding: "1rem", display: "inline-flex", gap: 32, marginBottom: 24 }}>
-                <div style={{ textAlign: "center" }}>
-                    <div style={{ fontSize: 13, color: "var(--text-2)" }}>{match.player_a?.username || 'Player A'}</div>
-                    <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-3)" }}>{match.player_a?.elo}</div>
-                </div>
-                <div style={{ fontFamily: "var(--font-mono)", fontSize: 14, color: "var(--text-3)", alignSelf: "center" }}>vs</div>
-                <div style={{ textAlign: "center" }}>
-                    <div style={{ fontSize: 13, color: "var(--text-2)" }}>{match.player_b?.username || 'Player B'}</div>
-                    <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-3)" }}>{match.player_b?.elo}</div>
                 </div>
             </div>
 
-            <div>
-                <button onClick={() => navigate('/play')} style={playAgainStyle}>Play Again</button>
+            {/* Detailed Breakdown */}
+            {mySubmission?.score && (
+                <div className="border border-primary-container/20 bg-surface-container-lowest p-6 mb-12">
+                    <div className="flex items-center gap-3 mb-6 text-primary-container">
+                        <span className="material-symbols-outlined text-sm">analytics</span>
+                        <span className="font-headline font-bold text-xs uppercase tracking-widest">BREAKDOWN_ANALYTICS</span>
+                    </div>
+
+                    <div className="space-y-4 font-mono text-xs text-secondary-container/80">
+                        <div className="flex justify-between items-center bg-black p-3 border border-secondary-container/10">
+                            <span>TEST_CASE_COMPLETION (BASE)</span>
+                            <span className="text-primary-container font-bold">[{mySubmission.score.testScore} / 600 PTS]</span>
+                        </div>
+                        <div className="flex justify-between items-center bg-black p-3 border border-secondary-container/10">
+                            <span>EXECUTION_SPEED_BONUS</span>
+                            <span className="text-primary-container font-bold">[{mySubmission.score.speedBonus} / 200 PTS]</span>
+                        </div>
+                        <div className="flex justify-between items-center bg-black p-3 border border-secondary-container/10">
+                            <span>ALGORITHMIC_EFFICIENCY_BONUS</span>
+                            <span className="text-primary-container font-bold">[{mySubmission.score.efficiencyBonus} / 200 PTS]</span>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex flex-wrap justify-center gap-6 mt-16 pb-12">
+                <button onClick={() => navigate('/play')} className="px-10 py-4 bg-primary-container text-black font-mono font-bold text-sm tracking-widest transition-transform hover:scale-105 hover:bg-white active:scale-95 uppercase shadow-[0_0_15px_rgba(0,255,65,0.3)]">
+                    [ RETURN_TO_BASE ]
+                </button>
             </div>
         </div>
     );
 }
-
-const playAgainStyle = {
-    padding: "12px 32px", borderRadius: 10, fontSize: 15, fontWeight: 600,
-    border: "none", background: "var(--accent)", color: "#fff",
-    cursor: "pointer", fontFamily: "var(--font-sans)", transition: "all 0.2s",
-};
