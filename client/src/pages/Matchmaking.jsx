@@ -76,7 +76,7 @@ export default function Matchmaking() {
                                 { title: 'Casual', desc: 'No rating changes', icon: 'sports_esports', activeColor: 'tertiary' },
                                 { title: 'Blitz', desc: 'Fast-paced challenges', icon: 'bolt', activeColor: 'secondary' }
                             ].map((m, i) => (
-                                <button key={m.title} onClick={() => setMode(i)} className={`flex flex-col gap-2 p-4 rounded-xl border transition-all text-left ${mode === i ? `bg-${m.activeColor}/10 border-${m.activeColor}/50 shadow-[0_0_15px_rgba(var(--color-${m.activeColor}),0.2)]` : 'bg-surface-container border-outline-variant/20 hover:border-outline-variant hover:bg-surface-container-high'}`}>
+                                <button key={m.title} onClick={() => setMode(i)} className={`flex flex-col gap-2 p-4 rounded-xl border transition-all text-left ${mode === i ? `bg-${m.activeColor}/10 border-${m.activeColor}/50 glow-${m.activeColor}` : 'bg-surface-container border-outline-variant/20 hover:border-outline-variant hover:bg-surface-container-high'}`}>
                                     <div className="flex justify-between items-start w-full">
                                         <span className={`material-symbols-outlined ${mode === i ? `text-${m.activeColor}` : 'text-on-surface-variant'}`}>{m.icon}</span>
                                         {mode === i && <span className={`w-2 h-2 rounded-full bg-${m.activeColor} animate-pulse`}></span>}
@@ -106,7 +106,7 @@ export default function Matchmaking() {
                                     <button 
                                         key={d} 
                                         onClick={() => setDiff(i)} 
-                                        className={`flex flex-col items-center justify-center py-4 rounded-xl border transition-all font-headline font-bold uppercase tracking-widest text-xs ${diff === i ? `bg-${activeColor}/10 border-${activeColor}/50 text-${activeColor} shadow-[0_0_15px_rgba(var(--color-${activeColor}),0.2)]` : 'bg-surface-container border-outline-variant/20 text-on-surface-variant hover:border-outline-variant hover:text-white'}`}
+                                        className={`flex flex-col items-center justify-center py-4 rounded-xl border transition-all font-headline font-bold uppercase tracking-widest text-xs ${diff === i ? `bg-${activeColor}/10 border-${activeColor}/50 text-${activeColor} glow-${activeColor}` : 'bg-surface-container border-outline-variant/20 text-on-surface-variant hover:border-outline-variant hover:text-white'}`}
                                     >
                                         {d}
                                     </button>
