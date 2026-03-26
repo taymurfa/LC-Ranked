@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LEETBATTLE_SYS // LEADERBOARD</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-dim": "#131313",
+              "primary": "#ebffe2",
+              "on-tertiary-fixed-variant": "#614000",
+              "on-error-container": "#ffdad6",
+              "tertiary-container": "#ffd69b",
+              "surface-bright": "#393939",
+              "on-surface": "#e2e2e2",
+              "on-secondary": "#00390f",
+              "secondary-fixed-dim": "#83da87",
+              "on-secondary-fixed-variant": "#00531a",
+              "on-primary-fixed": "#002203",
+              "surface-variant": "#353535",
+              "on-secondary-fixed": "#002106",
+              "on-background": "#e2e2e2",
+              "inverse-on-surface": "#303030",
+              "tertiary-fixed": "#ffddaf",
+              "inverse-surface": "#e2e2e2",
+              "on-tertiary-fixed": "#281800",
+              "surface": "#000000",
+              "primary-fixed-dim": "#00e639",
+              "surface-container-high": "#2a2a2a",
+              "on-primary-fixed-variant": "#00530e",
+              "on-secondary-container": "#89e18d",
+              "on-primary-container": "#007117",
+              "surface-container-lowest": "#0e0e0e",
+              "secondary-container": "#006622",
+              "secondary-fixed": "#9ef7a1",
+              "primary-container": "#00ff41",
+              "surface-container-highest": "#353535",
+              "tertiary": "#fff8f2",
+              "secondary": "#83da87",
+              "on-error": "#690005",
+              "on-tertiary": "#432c00",
+              "surface-container-low": "#1b1b1b",
+              "primary-fixed": "#72ff70",
+              "surface-container": "#1f1f1f",
+              "on-tertiary-container": "#825800",
+              "outline": "#84967e",
+              "on-primary": "#003907",
+              "background": "#000000",
+              "tertiary-fixed-dim": "#ffba43",
+              "outline-variant": "#3b4b37",
+              "error-container": "#93000a",
+              "surface-tint": "#00e639",
+              "on-surface-variant": "#b9ccb2",
+              "inverse-primary": "#006e16",
+              "error": "#ffb4ab"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Space Mono"],
+              "label": ["Space Mono"]
+            },
+          },
+        },
+      }
+    </script>
+<style>
+        .text-shadow-glow {
+            text-shadow: 0 0 8px #00ff41;
+        }
+        .scanline {
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 255, 65, 0.03) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.01), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.01));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+        .ascii-border {
+            font-family: 'Space Mono', monospace;
+            line-height: 1;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-primary-container selection:text-black min-h-screen overflow-x-hidden">
+<div class="scanline fixed inset-0 z-[100]"></div>
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 right-0 z-50 bg-black flex justify-between items-center w-full px-6 py-3 border-b border-green-900/40">
+<div class="text-xl font-bold text-green-400 tracking-widest font-headline uppercase">
+            LEETBATTLE_SYS
+        </div>
+<nav class="hidden md:flex items-center gap-8 font-headline tracking-[0.05em] uppercase font-bold text-sm">
+<a class="text-green-900/60 hover:text-green-300 hover:bg-green-900/20 transition-all duration-75" href="#">TERMINAL</a>
+<a class="text-green-400 border-b-2 border-green-400 pb-1 text-shadow-glow" href="#">RANKED</a>
+<a class="text-green-900/60 hover:text-green-300 hover:bg-green-900/20 transition-all duration-75" href="#">ARENA</a>
+<a class="text-green-900/60 hover:text-green-300 hover:bg-green-900/20 transition-all duration-75" href="#">LOGS</a>
+</nav>
+<div class="flex items-center gap-4 text-green-400">
+<span class="material-symbols-outlined hover:text-green-300 cursor-pointer" data-icon="settings">settings</span>
+<span class="material-symbols-outlined hover:text-green-300 cursor-pointer" data-icon="terminal">terminal</span>
+<span class="material-symbols-outlined hover:text-green-300 cursor-pointer" data-icon="power_settings_new">power_settings_new</span>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full z-40 flex flex-col pt-16 bg-black w-64 border-r border-green-900/40 hidden md:flex">
+<div class="px-6 py-8 border-b border-green-900/20 mb-4">
+<div class="flex items-center gap-3 mb-2">
+<div class="w-10 h-10 border border-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-primary-container" data-icon="account_circle">account_circle</span>
+</div>
+<div>
+<div class="text-primary-container font-black text-sm tracking-tighter">OPERATOR_01</div>
+<div class="text-[10px] text-secondary-container">RANK: ELITE</div>
+</div>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-1">
+<a class="text-green-900 p-2 flex items-center gap-3 hover:bg-green-900/30 hover:text-green-400 transition-all duration-75" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="grid_view">grid_view</span>
+<span class="font-['Space_Mono'] text-xs uppercase">DASHBOARD</span>
+</a>
+<a class="text-green-900 p-2 flex items-center gap-3 hover:bg-green-900/30 hover:text-green-400 transition-all duration-75" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="swords">swords</span>
+<span class="font-['Space_Mono'] text-xs uppercase">BATTLE_INIT</span>
+</a>
+<a class="bg-green-400 text-black font-bold p-2 flex items-center gap-3" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="leaderboard">leaderboard</span>
+<span class="font-['Space_Mono'] text-xs uppercase">LADDER</span>
+</a>
+<a class="text-green-900 p-2 flex items-center gap-3 hover:bg-green-900/30 hover:text-green-400 transition-all duration-75" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="history">history</span>
+<span class="font-['Space_Mono'] text-xs uppercase">REPLAYS</span>
+</a>
+<a class="text-green-900 p-2 flex items-center gap-3 hover:bg-green-900/30 hover:text-green-400 transition-all duration-75" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="settings">settings</span>
+<span class="font-['Space_Mono'] text-xs uppercase">SYSTEM_CFG</span>
+</a>
+</nav>
+<div class="mt-auto p-4 border-t border-green-900/20">
+<button class="w-full border border-primary-container py-2 text-primary-container font-bold text-xs tracking-widest hover:bg-primary-container hover:text-black transition-all duration-75 mb-4">
+                [ NEW_BATTLE ]
+            </button>
+<div class="space-y-2">
+<a class="text-green-900 text-[10px] flex items-center gap-2 hover:text-green-400" href="#">
+<span class="material-symbols-outlined text-xs" data-icon="description">description</span> DOCS
+                </a>
+<a class="text-green-900 text-[10px] flex items-center gap-2 hover:text-green-400" href="#">
+<span class="material-symbols-outlined text-xs" data-icon="help_center">help_center</span> SUPPORT
+                </a>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:ml-64 pt-20 pb-12 px-6 lg:px-12">
+<!-- Title & Asymmetric Layout -->
+<div class="mb-12">
+<div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+<div>
+<div class="text-secondary-container text-xs mb-2 tracking-[0.2em] font-bold">SYSTEM_DIR: /ROOT/LADDER/GLOBAL</div>
+<h1 class="text-5xl md:text-7xl lg:text-8xl font-headline font-bold text-primary-container text-shadow-glow tracking-tighter uppercase leading-none">
+                        GLOBAL_RANKINGS<span class="animate-pulse">_</span>
+</h1>
+</div>
+<div class="flex flex-col items-end gap-2">
+<div class="text-secondary-container text-[10px] text-right font-mono">NODE_UPTIME: 342:12:05</div>
+<div class="text-primary-container text-[10px] text-right font-mono border border-primary-container/30 px-2 py-1 bg-primary-container/5">
+                        LATEST_SYNC: 0.002MS AGO
+                    </div>
+</div>
+</div>
+</div>
+<!-- Filters Section -->
+<div class="mb-8 w-full">
+<div class="flex flex-wrap gap-0 border border-green-900/40">
+<button class="flex-1 py-4 px-6 text-xs font-bold tracking-widest bg-primary-container text-black border-r border-green-900/40 flex items-center justify-center gap-2">
+                    [ GLOBAL ✓ ]
+                </button>
+<button class="flex-1 py-4 px-6 text-xs font-bold tracking-widest text-green-900 hover:text-green-400 hover:bg-green-900/10 border-r border-green-900/40 transition-all">
+                    [ FRIENDS ]
+                </button>
+<button class="flex-1 py-4 px-6 text-xs font-bold tracking-widest text-green-900 hover:text-green-400 hover:bg-green-900/10 transition-all">
+                    [ THIS WEEK ]
+                </button>
+</div>
+</div>
+<!-- Leaderboard Table -->
+<div class="relative overflow-x-auto">
+<div class="ascii-border text-primary-container text-[10px] mb-[-2px] tracking-tight">
+                ╔══════╤══════════════════════════╤══════════╤══════════╤══════════════════╗
+            </div>
+<table class="w-full border-collapse font-mono text-xs">
+<thead>
+<tr class="text-secondary-container border-x border-green-900/40">
+<th class="py-4 px-6 text-left font-normal border-r border-green-900/40">RANK</th>
+<th class="py-4 px-6 text-left font-normal border-r border-green-900/40">HANDLE</th>
+<th class="py-4 px-6 text-left font-normal border-r border-green-900/40">ELO</th>
+<th class="py-4 px-6 text-left font-normal border-r border-green-900/40">W/L</th>
+<th class="py-4 px-6 text-left font-normal">TIER</th>
+</tr>
+</thead>
+<tbody class="border-x border-green-900/40">
+<!-- Top Players -->
+<tr class="border-t border-green-900/20 hover:bg-green-900/10 group">
+<td class="py-5 px-6 border-r border-green-900/20 text-primary-container">001</td>
+<td class="py-5 px-6 border-r border-green-900/20">
+<span class="text-primary-container font-bold">@NEUROMANCER</span>
+<span class="text-[8px] text-green-900 ml-2">[MOD_ACTIVE]</span>
+</td>
+<td class="py-5 px-6 border-r border-green-900/20 text-primary-container">2,842</td>
+<td class="py-5 px-6 border-r border-green-900/20 text-green-600">89%</td>
+<td class="py-5 px-6 text-primary-container flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="military_tech">military_tech</span>
+                            GRANDMASTER
+                        </td>
+</tr>
+<tr class="border-t border-green-900/20 hover:bg-green-900/10">
+<td class="py-5 px-6 border-r border-green-900/20 text-primary-container">002</td>
+<td class="py-5 px-6 border-r border-green-900/20">
+<span class="text-white font-bold">@ZERO_COOL</span>
+</td>
+<td class="py-5 px-6 border-r border-green-900/20 text-primary-container">2,711</td>
+<td class="py-5 px-6 border-r border-green-900/20 text-green-600">82%</td>
+<td class="py-5 px-6 text-primary-container flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="military_tech">military_tech</span>
+                            GRANDMASTER
+                        </td>
+</tr>
+<tr class="border-t border-green-900/20 hover:bg-green-900/10">
+<td class="py-5 px-6 border-r border-green-900/20 text-primary-container">003</td>
+<td class="py-5 px-6 border-r border-green-900/20">
+<span class="text-white font-bold">@CASE_S_V</span>
+</td>
+<td class="py-5 px-6 border-r border-green-900/20 text-primary-container">2,698</td>
+<td class="py-5 px-6 border-r border-green-900/20 text-green-600">77%</td>
+<td class="py-5 px-6 text-primary-container flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="military_tech">military_tech</span>
+                            GRANDMASTER
+                        </td>
+</tr>
+<!-- Divider for Gap -->
+<tr class="border-t border-green-900/40">
+<td class="py-2 px-6 text-center text-green-900 text-[10px] tracking-[1em]" colspan="5">║ ║ ║ ║ ║</td>
+</tr>
+<!-- Highlighted Current Player -->
+<tr class="bg-primary-container text-black font-bold">
+<td class="py-5 px-6 border-r border-black/20">142</td>
+<td class="py-5 px-6 border-r border-black/20">
+                            @ALEXKIM [YOU]
+                        </td>
+<td class="py-5 px-6 border-r border-black/20">1,942</td>
+<td class="py-5 px-6 border-r border-black/20">64%</td>
+<td class="py-5 px-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="shield" style="font-variation-settings: 'FILL' 1;">shield</span>
+                            ELITE
+                        </td>
+</tr>
+<!-- Next Players -->
+<tr class="border-t border-green-900/20 hover:bg-green-900/10">
+<td class="py-5 px-6 border-r border-green-900/20 text-primary-container">143</td>
+<td class="py-5 px-6 border-r border-green-900/20">
+<span class="text-white font-bold">@NULL_POINTER</span>
+</td>
+<td class="py-5 px-6 border-r border-green-900/20 text-primary-container">1,938</td>
+<td class="py-5 px-6 border-r border-green-900/20 text-green-600">61%</td>
+<td class="py-5 px-6 text-primary-container flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="shield">shield</span>
+                            ELITE
+                        </td>
+</tr>
+</tbody>
+</table>
+<div class="ascii-border text-primary-container text-[10px] mt-[-2px] tracking-tight">
+                ╚══════╧══════════════════════════╧══════════╧══════════╧══════════════════╝
+            </div>
+</div>
+<!-- Terminal Output / Sidebar Info -->
+<div class="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
+<div class="lg:col-span-2 border border-green-900/20 p-6 bg-surface-container-low">
+<div class="flex items-center gap-3 mb-4 text-primary-container">
+<span class="material-symbols-outlined text-sm" data-icon="analytics">analytics</span>
+<span class="font-headline font-bold text-xs uppercase tracking-widest">PERFORMANCE_ANALYTICS</span>
+</div>
+<div class="flex flex-col md:flex-row gap-8">
+<div class="flex-1 space-y-4">
+<div class="flex justify-between text-[10px]">
+<span class="text-secondary-container">WIN_RATE_TREND</span>
+<span class="text-primary-container">+4.2%</span>
+</div>
+<div class="h-1 bg-green-900/30 w-full">
+<div class="h-full bg-primary-container w-[64%] shadow-[0_0_8px_#00ff41]"></div>
+</div>
+<div class="flex justify-between text-[10px]">
+<span class="text-secondary-container">ELO_STABILITY</span>
+<span class="text-primary-container">STABLE</span>
+</div>
+<div class="h-1 bg-green-900/30 w-full">
+<div class="h-full bg-primary-container w-[88%] shadow-[0_0_8px_#00ff41]"></div>
+</div>
+</div>
+<div class="flex-1 text-[10px] font-mono leading-relaxed text-secondary-container border-l border-green-900/20 pl-6">
+                        &gt; ANALYZING COMBAT LOGS...<br/>
+                        &gt; OPTIMIZING SUB-ROUTINES...<br/>
+                        &gt; CURRENT POSITION: TOP 5.2%<br/>
+                        &gt; ESTIMATED TIME TO MASTER: 124H<br/>
+                        &gt; WARNING: HIGH LATENCY IN SECTOR-7
+                    </div>
+</div>
+</div>
+<div class="border border-green-900/20 p-6 flex flex-col justify-between">
+<div>
+<div class="text-primary-container font-headline font-bold text-xs uppercase tracking-widest mb-4">SEASON_REWARDS</div>
+<div class="text-3xl font-headline font-bold text-primary-container text-shadow-glow mb-2">NEON_EDGE</div>
+<p class="text-[10px] text-secondary-container font-mono mb-4">EXCLUSIVE FRAME &amp; AVATAR_GLOW UNLOCKS AT 2200 ELO.</p>
+</div>
+<button class="w-full border border-secondary-container py-3 text-secondary-container font-bold text-[10px] tracking-widest hover:border-primary-container hover:text-primary-container transition-all">
+                    VIEW_ALL_TIERS
+                </button>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="fixed bottom-0 w-full px-4 py-1 flex justify-between items-center z-50 bg-black border-t border-green-900/20 font-['Space_Mono'] text-[10px] tracking-tighter text-green-900">
+<div>(C) 2024 LEETBATTLE_MAINFRAME // ALL_RIGHTS_RESERVED</div>
+<div class="flex gap-6">
+<span class="text-green-400">STATUS:NOMINAL</span>
+<span class="hover:text-green-600 cursor-pointer">LATENCY:24MS</span>
+<span class="hover:text-green-600 cursor-pointer">ENCRYPTION:ACTIVE</span>
+</div>
+</footer>
+</body></html>

@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LEETBATTLE_SYS // REPLAY_VIEWER</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Space+Mono:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-dim": "#131313",
+                        "primary": "#ebffe2",
+                        "on-tertiary-fixed-variant": "#614000",
+                        "on-error-container": "#ffdad6",
+                        "tertiary-container": "#ffd69b",
+                        "surface-bright": "#393939",
+                        "on-surface": "#e2e2e2",
+                        "on-secondary": "#00390f",
+                        "secondary-fixed-dim": "#83da87",
+                        "on-secondary-fixed-variant": "#00531a",
+                        "on-primary-fixed": "#002203",
+                        "surface-variant": "#353535",
+                        "on-secondary-fixed": "#002106",
+                        "on-background": "#e2e2e2",
+                        "inverse-on-surface": "#303030",
+                        "tertiary-fixed": "#ffddaf",
+                        "inverse-surface": "#e2e2e2",
+                        "on-tertiary-fixed": "#281800",
+                        "surface": "#131313",
+                        "primary-fixed-dim": "#00e639",
+                        "surface-container-high": "#2a2a2a",
+                        "on-primary-fixed-variant": "#00530e",
+                        "on-secondary-container": "#89e18d",
+                        "on-primary-container": "#007117",
+                        "surface-container-lowest": "#0e0e0e",
+                        "secondary-container": "#006622",
+                        "secondary-fixed": "#9ef7a1",
+                        "primary-container": "#00ff41",
+                        "surface-container-highest": "#353535",
+                        "tertiary": "#fff8f2",
+                        "secondary": "#83da87",
+                        "on-error": "#690005",
+                        "on-tertiary": "#432c00",
+                        "surface-container-low": "#1b1b1b",
+                        "primary-fixed": "#72ff70",
+                        "surface-container": "#1f1f1f",
+                        "on-tertiary-container": "#825800",
+                        "outline": "#84967e",
+                        "on-primary": "#003907",
+                        "background": "#131313",
+                        "tertiary-fixed-dim": "#ffba43",
+                        "outline-variant": "#3b4b37",
+                        "error-container": "#93000a",
+                        "surface-tint": "#00e639",
+                        "on-surface-variant": "#b9ccb2",
+                        "inverse-primary": "#006e16",
+                        "error": "#ffb4ab"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Space Grotesk"],
+                        "label": ["Space Grotesk"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .text-shadow-glow { text-shadow: 0 0 8px #00ff41; }
+        .text-shadow-glow-dim { text-shadow: 0 0 4px #006622; }
+        .scanline-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+        .ascii-border-v { background-image: linear-gradient(to bottom, #006622 50%, transparent 50%); background-size: 1px 10px; }
+        .ascii-border-h { background-image: linear-gradient(to right, #006622 50%, transparent 50%); background-size: 10px 1px; }
+        .cursor-blink { animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary-container selection:text-surface">
+<div class="scanline-overlay"></div>
+<!-- TopAppBar -->
+<header class="fixed top-0 z-50 flex justify-between items-center w-full px-6 py-3 bg-black border-b border-secondary-container/40">
+<div class="text-xl font-bold text-primary-container tracking-widest font-headline uppercase text-shadow-glow">
+            LEETBATTLE_SYS
+        </div>
+<nav class="hidden md:flex gap-8">
+<a class="text-secondary-container/60 font-headline font-bold uppercase tracking-[0.05em] hover:text-primary-container transition-colors" href="#">TERMINAL</a>
+<a class="text-secondary-container/60 font-headline font-bold uppercase tracking-[0.05em] hover:text-primary-container transition-colors" href="#">RANKED</a>
+<a class="text-secondary-container/60 font-headline font-bold uppercase tracking-[0.05em] hover:text-primary-container transition-colors" href="#">ARENA</a>
+<a class="text-primary-container border-b-2 border-primary-container pb-1 font-headline font-bold uppercase tracking-[0.05em]" href="#">LOGS</a>
+</nav>
+<div class="flex items-center gap-4 text-primary-container">
+<span class="material-symbols-outlined hover:text-primary transition-colors cursor-pointer" data-icon="settings">settings</span>
+<span class="material-symbols-outlined hover:text-primary transition-colors cursor-pointer" data-icon="terminal">terminal</span>
+<span class="material-symbols-outlined hover:text-primary transition-colors cursor-pointer text-error" data-icon="power_settings_new">power_settings_new</span>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full z-40 flex flex-col pt-16 w-64 bg-black border-r border-secondary-container/40">
+<div class="px-6 py-8 flex flex-col gap-1">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-10 h-10 border border-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-primary-container" data-icon="account_circle">account_circle</span>
+</div>
+<div>
+<div class="text-xs font-['Space_Mono'] text-primary-container font-bold">OPERATOR_01</div>
+<div class="text-[10px] font-['Space_Mono'] text-secondary-container">RANK: ELITE</div>
+</div>
+</div>
+<div class="space-y-2">
+<a class="text-secondary-container p-2 flex items-center gap-3 font-['Space_Mono'] text-xs uppercase hover:bg-secondary-container/30 hover:text-primary-container group transition-all" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="grid_view">grid_view</span>
+                    DASHBOARD
+                </a>
+<a class="text-secondary-container p-2 flex items-center gap-3 font-['Space_Mono'] text-xs uppercase hover:bg-secondary-container/30 hover:text-primary-container transition-all" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="swords">swords</span>
+                    BATTLE_INIT
+                </a>
+<a class="text-secondary-container p-2 flex items-center gap-3 font-['Space_Mono'] text-xs uppercase hover:bg-secondary-container/30 hover:text-primary-container transition-all" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="leaderboard">leaderboard</span>
+                    LADDER
+                </a>
+<a class="bg-primary-container text-black font-bold p-2 flex items-center gap-3 font-['Space_Mono'] text-xs uppercase" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="history">history</span>
+                    REPLAYS
+                </a>
+<a class="text-secondary-container p-2 flex items-center gap-3 font-['Space_Mono'] text-xs uppercase hover:bg-secondary-container/30 hover:text-primary-container transition-all" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="settings">settings</span>
+                    SYSTEM_CFG
+                </a>
+</div>
+</div>
+<div class="mt-auto px-6 py-6 border-t border-secondary-container/20">
+<button class="w-full py-2 border border-primary-container text-primary-container font-['Space_Mono'] text-xs font-bold hover:bg-primary-container hover:text-black transition-all uppercase tracking-tighter">
+                [ NEW_BATTLE ]
+            </button>
+<div class="mt-4 flex flex-col gap-2">
+<a class="text-secondary-container text-[10px] font-['Space_Mono'] flex items-center gap-2 hover:text-primary-container" href="#">
+<span class="material-symbols-outlined text-xs" data-icon="description">description</span> DOCS
+                </a>
+<a class="text-secondary-container text-[10px] font-['Space_Mono'] flex items-center gap-2 hover:text-primary-container" href="#">
+<span class="material-symbols-outlined text-xs" data-icon="help_center">help_center</span> SUPPORT
+                </a>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-16 pb-12 min-h-screen flex flex-col bg-surface overflow-hidden">
+<!-- Replay Header Info -->
+<section class="px-8 py-6 flex justify-between items-end border-b border-secondary-container/20 bg-surface-container-lowest">
+<div>
+<h1 class="font-headline text-3xl font-bold text-primary-container text-shadow-glow tracking-tighter uppercase">
+                    MATCH_ID: 0x8F2A_9921
+                </h1>
+<p class="font-['Space_Mono'] text-secondary-container text-xs mt-1">
+                    TARGET: <span class="text-primary-container">binary_search_rotated.py</span> // DURATION: <span class="text-primary-container">02:14:45</span>
+</p>
+</div>
+<div class="text-right">
+<div class="font-['Space_Mono'] text-[10px] text-secondary-container uppercase">SYSLOG_STATUS</div>
+<div class="text-primary-container font-['Space_Mono'] text-sm">[ STREAM_STABLE ]</div>
+</div>
+</section>
+<!-- 50/50 Split Layout Code View -->
+<section class="flex-grow flex w-full">
+<!-- Left Panel: PLAYER_01 (LOCAL) -->
+<div class="w-1/2 border-r border-secondary-container/40 flex flex-col relative group">
+<div class="absolute top-4 right-4 z-10 font-['Space_Mono'] text-[10px] text-primary-container/40 px-2 py-1 border border-primary-container/20 bg-black">
+                    SRC_LOCAL: OPERATOR_01
+                </div>
+<div class="flex-grow p-6 font-['Space_Mono'] text-sm leading-relaxed overflow-hidden bg-[#050505]">
+<div class="text-secondary-container mb-2">╔═══════════════════════════════════════╗</div>
+<div class="flex gap-4">
+<div class="text-secondary-container/30 select-none text-right w-8">
+                            01<br/>02<br/>03<br/>04<br/>05<br/>06<br/>07<br/>08<br/>09<br/>10<br/>11<br/>12<br/>13<br/>14
+                        </div>
+<div class="text-primary-container/90">
+<span class="text-tertiary-fixed-dim">def</span> <span class="text-blue-400">search</span>(nums, target):<br/>
+                                left, right = <span class="text-orange-400">0</span>, len(nums) - <span class="text-orange-400">1</span><br/>
+                                <br/>
+                                <span class="text-tertiary-fixed-dim">while</span> left &lt;= right:<br/>
+                                    mid = (left + right) // <span class="text-orange-400">2</span><br/>
+                                    <span class="text-tertiary-fixed-dim">if</span> nums[mid] == target:<br/>
+                                        <span class="text-tertiary-fixed-dim">return</span> mid<br/>
+                                    <br/>
+                                    <span class="text-secondary-container italic"># Checking left sorted side</span><br/>
+                                    <span class="text-tertiary-fixed-dim">if</span> nums[left] &lt;= nums[mid]:<br/>
+                                        <span class="text-tertiary-fixed-dim">if</span> nums[left] &lt;= target &lt; nums[mid]:<br/>
+                                            right = mid - <span class="text-orange-400">1</span><br/>
+                                        <span class="text-tertiary-fixed-dim">else</span>:<br/>
+                                            left = mid + <span class="text-orange-400">1</span><span class="cursor-blink">_</span>
+</div>
+</div>
+</div>
+<div class="p-4 bg-surface-container-low border-t border-secondary-container/20 font-['Space_Mono'] text-xs">
+<div class="text-secondary-container mb-1 uppercase tracking-tighter">Console Output:</div>
+<div class="text-primary-container">&gt; RUNNING TEST_CASE_01... <span class="text-primary-container font-bold">[SUCCESS]</span></div>
+<div class="text-primary-container">&gt; RUNNING TEST_CASE_02... <span class="text-primary-container font-bold">[SUCCESS]</span></div>
+</div>
+</div>
+<!-- Right Panel: PLAYER_02 (REMOTE) -->
+<div class="w-1/2 flex flex-col relative group">
+<div class="absolute top-4 right-4 z-10 font-['Space_Mono'] text-[10px] text-tertiary-fixed-dim/40 px-2 py-1 border border-tertiary-fixed-dim/20 bg-black">
+                    SRC_REMOTE: X_VECTOR_99
+                </div>
+<div class="flex-grow p-6 font-['Space_Mono'] text-sm leading-relaxed overflow-hidden bg-[#0a0a0a]">
+<div class="text-secondary-container mb-2">╚═══════════════════════════════════════╝</div>
+<div class="flex gap-4 opacity-70">
+<div class="text-secondary-container/30 select-none text-right w-8">
+                            01<br/>02<br/>03<br/>04<br/>05<br/>06<br/>07<br/>08<br/>09<br/>10<br/>11<br/>12<br/>13<br/>14
+                        </div>
+<div class="text-primary-container/90">
+<span class="text-tertiary-fixed-dim">def</span> <span class="text-blue-400">search</span>(nums, target):<br/>
+                                n = len(nums)<br/>
+                                lo, hi = <span class="text-orange-400">0</span>, n - <span class="text-orange-400">1</span><br/>
+                                <span class="text-tertiary-fixed-dim">while</span> lo &lt;= hi:<br/>
+                                    mid = lo + (hi - lo) // <span class="text-orange-400">2</span><br/>
+                                    <span class="text-tertiary-fixed-dim">if</span> nums[mid] == target: <span class="text-tertiary-fixed-dim">return</span> mid<br/>
+                                    <br/>
+                                    <span class="text-secondary-container italic"># Binary search logic here</span><br/>
+                                    <span class="text-tertiary-fixed-dim">if</span> nums[lo] &lt;= nums[mid]:<br/>
+                                        <span class="text-tertiary-fixed-dim">if</span> target &gt;= nums[lo] <span class="text-tertiary-fixed-dim">and</span> target &lt; nums[mid]:<br/>
+                                            hi = mid - <span class="text-orange-400">1</span><br/>
+                                        <span class="text-tertiary-fixed-dim">else</span>:<br/>
+                                            lo = mid + <span class="text-orange-400">1</span><span class="cursor-blink">_</span>
+</div>
+</div>
+</div>
+<div class="p-4 bg-surface-container-low border-t border-secondary-container/20 font-['Space_Mono'] text-xs">
+<div class="text-secondary-container mb-1 uppercase tracking-tighter">Console Output:</div>
+<div class="text-tertiary-fixed-dim/60">&gt; RUNNING TEST_CASE_01... [SUCCESS]</div>
+<div class="text-error">&gt; RUNNING TEST_CASE_02... [FAIL: RECURSION_DEPTH_EXCEEDED]</div>
+</div>
+</div>
+</section>
+<!-- Timeline / Progress -->
+<section class="px-12 py-4 bg-black border-t border-secondary-container/40">
+<div class="relative h-6 flex items-center">
+<!-- Timeline Base -->
+<div class="absolute w-full h-[1px] bg-secondary-container/30"></div>
+<!-- Progress Bar -->
+<div class="absolute w-[65%] h-[1px] bg-primary-container shadow-[0_0_10px_#00ff41]"></div>
+<!-- Current Playhead -->
+<div class="absolute left-[65%] w-2 h-2 bg-primary-container rotate-45 transform -translate-x-1/2 shadow-[0_0_5px_#00ff41]"></div>
+<!-- Event Dots -->
+<div class="absolute left-[15%] group">
+<div class="w-1.5 h-1.5 rounded-full bg-tertiary-fixed-dim cursor-help"></div>
+<div class="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-surface-container-high border border-tertiary-fixed-dim text-[10px] text-tertiary-fixed-dim px-2 py-1 whitespace-nowrap font-['Space_Mono']">
+                        00:21:04 - TAB BLUR
+                    </div>
+</div>
+<div class="absolute left-[40%] group">
+<div class="w-1.5 h-1.5 rounded-full bg-primary-container cursor-help"></div>
+<div class="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-surface-container-high border border-primary-container text-[10px] text-primary-container px-2 py-1 whitespace-nowrap font-['Space_Mono']">
+                        01:02:18 - TEST PASS (ALL)
+                    </div>
+</div>
+<div class="absolute left-[80%] group opacity-40">
+<div class="w-1.5 h-1.5 rounded-full bg-error cursor-help"></div>
+<div class="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-surface-container-high border border-error text-[10px] text-error px-2 py-1 whitespace-nowrap font-['Space_Mono']">
+                        01:45:00 - SYNC ERROR
+                    </div>
+</div>
+</div>
+<div class="flex justify-between mt-2 font-['Space_Mono'] text-[9px] text-secondary-container uppercase tracking-widest">
+<span>00:00:00</span>
+<span>MATCH_REPLAY_ACTIVE</span>
+<span>02:14:45</span>
+</div>
+</section>
+<!-- VCR Controls Bar -->
+<section class="h-16 flex items-center px-8 bg-black border-t border-secondary-container/40 justify-between">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<button class="p-2 text-secondary-container hover:text-primary-container transition-all">
+<span class="material-symbols-outlined text-lg" data-icon="fast_rewind">fast_rewind</span>
+</button>
+<button class="p-2 text-secondary-container hover:text-primary-container transition-all">
+<span class="material-symbols-outlined text-lg" data-icon="skip_previous">skip_previous</span>
+</button>
+<button class="px-4 py-1 border border-error text-error font-['Space_Mono'] text-[10px] hover:bg-error hover:text-black transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-xs" data-icon="stop" style="font-variation-settings: 'FILL' 1;">stop</span> STOP
+                    </button>
+<button class="px-6 py-2 bg-primary-container text-black font-['Space_Mono'] font-bold text-xs flex items-center gap-2 hover:bg-primary-container/80 transition-all shadow-[0_0_15px_rgba(0,255,65,0.3)]">
+<span class="material-symbols-outlined text-sm" data-icon="play_arrow" style="font-variation-settings: 'FILL' 1;">play_arrow</span> PLAY
+                    </button>
+<button class="p-2 text-secondary-container hover:text-primary-container transition-all">
+<span class="material-symbols-outlined text-lg" data-icon="skip_next">skip_next</span>
+</button>
+<button class="p-2 text-secondary-container hover:text-primary-container transition-all">
+<span class="material-symbols-outlined text-lg" data-icon="fast_forward">fast_forward</span>
+</button>
+</div>
+</div>
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3">
+<span class="font-['Space_Mono'] text-[10px] text-secondary-container uppercase">SPEED:</span>
+<div class="flex gap-1">
+<button class="px-2 py-0.5 border border-primary-container bg-primary-container text-black font-['Space_Mono'] text-[10px]">1X</button>
+<button class="px-2 py-0.5 border border-secondary-container text-secondary-container font-['Space_Mono'] text-[10px] hover:border-primary-container hover:text-primary-container">2X</button>
+<button class="px-2 py-0.5 border border-secondary-container text-secondary-container font-['Space_Mono'] text-[10px] hover:border-primary-container hover:text-primary-container">4X</button>
+</div>
+</div>
+<div class="flex items-center gap-3 border-l border-secondary-container/20 pl-8">
+<span class="material-symbols-outlined text-primary-container text-lg" data-icon="volume_up">volume_up</span>
+<div class="w-24 h-1 bg-secondary-container/20 relative">
+<div class="absolute top-0 left-0 h-full w-[70%] bg-primary-container"></div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer Status -->
+<footer class="fixed bottom-0 w-full px-4 py-1 flex justify-between items-center z-50 bg-black border-t border-secondary-container/20">
+<div class="font-['Space_Mono'] text-[10px] tracking-tighter text-secondary-container">
+            (C) 2024 LEETBATTLE_MAINFRAME // ALL_RIGHTS_RESERVED
+        </div>
+<div class="flex gap-6">
+<span class="font-['Space_Mono'] text-[10px] tracking-tighter text-primary-container">STATUS:NOMINAL</span>
+<span class="font-['Space_Mono'] text-[10px] tracking-tighter text-secondary-container">LATENCY:24MS</span>
+<span class="font-['Space_Mono'] text-[10px] tracking-tighter text-secondary-container">ENCRYPTION:ACTIVE</span>
+</div>
+</footer>
+</body></html>

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            background-color: #000000;
+            color: #00ff41;
+            font-family: 'Space Mono', monospace;
+            overflow-x: hidden;
+        }
+        .font-headline { font-family: 'Space Grotesk', sans-serif; }
+        .text-shadow-glow {
+            text-shadow: 0 0 5px rgba(0, 255, 65, 0.6);
+        }
+        .scanline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            z-index: 100;
+            opacity: 0.03;
+        }
+        .ascii-border {
+            border-image-source: url("data:image/svg+xml;charset=utf-8,%3Csvg width='12' height='12' viewBox='0 0 12 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1V11M1 1H11M1 11H11M11 1V11' stroke='%23006622'/%3E%3C/svg%3E");
+            border-image-slice: 1;
+        }
+        .cursor-blink {
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink {
+            from, to { opacity: 1; }
+            50% { opacity: 0; }
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface": "#000000",
+                        "primary-container": "#00ff41",
+                        "secondary-container": "#006622",
+                        "surface-container-low": "#1b1b1b",
+                        "surface-container-lowest": "#0e0e0e",
+                        "tertiary-fixed-dim": "#ffba43",
+                        "error": "#ffb4ab",
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Space Mono"],
+                        "label": ["Space Mono"]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-black text-primary-container selection:bg-primary-container selection:text-black">
+<div class="scanline"></div>
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-50 bg-black border-b border-green-900/40 flex justify-between items-center px-6 py-3">
+<div class="text-xl font-bold text-primary-container tracking-widest font-headline uppercase">
+            LEETBATTLE_SYS <span class="text-secondary-container">v4.0.2</span>
+</div>
+<nav class="hidden md:flex gap-8">
+<a class="font-headline tracking-[0.05em] uppercase font-bold text-secondary-container/60 hover:text-primary-container hover:bg-green-900/20 px-2 transition-colors" href="#">TERMINAL</a>
+<a class="font-headline tracking-[0.05em] uppercase font-bold text-secondary-container/60 hover:text-primary-container hover:bg-green-900/20 px-2 transition-colors" href="#">RANKED</a>
+<a class="font-headline tracking-[0.05em] uppercase font-bold text-secondary-container/60 hover:text-primary-container hover:bg-green-900/20 px-2 transition-colors" href="#">ARENA</a>
+<a class="font-headline tracking-[0.05em] uppercase font-bold text-secondary-container/60 hover:text-primary-container hover:bg-green-900/20 px-2 transition-colors" href="#">LOGS</a>
+</nav>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-secondary-container hover:text-primary-container cursor-pointer">settings</span>
+<span class="material-symbols-outlined text-secondary-container hover:text-primary-container cursor-pointer">terminal</span>
+<span class="material-symbols-outlined text-secondary-container hover:text-primary-container cursor-pointer">power_settings_new</span>
+</div>
+</header>
+<!-- SideNavBar (Active: SYSTEM_CFG/PROFILE logic) -->
+<aside class="fixed left-0 top-0 h-full z-40 flex flex-col pt-16 w-64 border-r border-green-900/40 bg-black">
+<div class="p-6 mb-8">
+<div class="flex items-center gap-4 mb-2">
+<div class="w-10 h-10 border border-primary-container flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Cyberpunk glitch style profile avatar with neon green lighting and digital noise textures" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVTGMrnRSf8g0S0-OXKJGcQch1St0EIZbEoXLPBHwI6ywj5yDoile7ZlUZgnVwE8RRVrlWmg3O50FTbZ04klDHE-aRVM8hlweaPDfPUlb5i-AdtW0vjKoGZNr9z_F-3Ti-ytALFXDh0l5UVIREm-pGRUtelnfDPjvy1Ds9nGLphLjp-ZVPTRBjHfco6UzgTLjKVXQC9PlJNDTn5F9bAZryUlkbpXPmAbVPWKtp7B0I_mK-wLPLAUjzeDhWrmLMRpmFO_Np5A-mN2s"/>
+</div>
+<div>
+<div class="text-primary-container font-bold text-sm">OPERATOR_01</div>
+<div class="text-secondary-container text-[10px]">RANK: ELITE</div>
+</div>
+</div>
+<button class="w-full border border-primary-container py-2 text-xs font-bold hover:bg-primary-container hover:text-black transition-all">
+                [ NEW_BATTLE ]
+            </button>
+</div>
+<nav class="flex-1 px-4 space-y-2">
+<a class="text-green-900 p-2 flex items-center gap-3 hover:bg-green-900/30 hover:text-green-400 text-xs font-bold" href="#">
+<span class="material-symbols-outlined">grid_view</span> DASHBOARD
+            </a>
+<a class="text-green-900 p-2 flex items-center gap-3 hover:bg-green-900/30 hover:text-green-400 text-xs font-bold" href="#">
+<span class="material-symbols-outlined">swords</span> BATTLE_INIT
+            </a>
+<a class="text-green-900 p-2 flex items-center gap-3 hover:bg-green-900/30 hover:text-green-400 text-xs font-bold" href="#">
+<span class="material-symbols-outlined">leaderboard</span> LADDER
+            </a>
+<a class="text-green-900 p-2 flex items-center gap-3 hover:bg-green-900/30 hover:text-green-400 text-xs font-bold" href="#">
+<span class="material-symbols-outlined">history</span> REPLAYS
+            </a>
+<!-- Active Profile State -->
+<a class="bg-primary-container text-black font-bold p-2 flex items-center gap-3 text-xs" href="#">
+<span class="material-symbols-outlined">settings</span> SYSTEM_CFG
+            </a>
+</nav>
+<div class="p-4 border-t border-green-900/20">
+<div class="flex flex-col gap-2">
+<a class="text-secondary-container text-[10px] flex items-center gap-2 hover:text-primary-container" href="#">
+<span class="material-symbols-outlined text-sm">description</span> DOCS
+                </a>
+<a class="text-secondary-container text-[10px] flex items-center gap-2 hover:text-primary-container" href="#">
+<span class="material-symbols-outlined text-sm">help_center</span> SUPPORT
+                </a>
+</div>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="ml-64 pt-20 pb-12 px-10 min-h-screen">
+<!-- Massive Heading -->
+<div class="mb-12">
+<h1 class="text-[8rem] font-black font-headline leading-none text-primary-container/10 select-none absolute -z-10 tracking-tighter">
+                PROFILE
+            </h1>
+<div class="pt-16">
+<h2 class="text-4xl font-black font-headline tracking-widest text-shadow-glow">PLAYER_DOSSIER<span class="cursor-blink">_</span></h2>
+<p class="text-secondary-container text-sm mt-2">ACCESSING ENCRYPTED DATA: ALEXKIM.SYS</p>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-12 gap-8">
+<!-- Dossier Panel -->
+<section class="col-span-12 lg:col-span-7 border-2 border-primary-container p-1 relative">
+<div class="absolute -top-3 left-6 bg-black px-2 text-primary-container font-bold text-sm">
+                    ╔═ IDENTIFICATION ═╗
+                </div>
+<div class="bg-surface-container-lowest p-8 flex flex-col md:flex-row gap-8">
+<div class="w-48 h-48 border-2 border-secondary-container p-2 flex-shrink-0">
+<img class="w-full h-full object-cover grayscale brightness-75 contrast-125" data-alt="High-contrast dark photography of a programmer workspace with glowing green code on monitor reflecting on glass surfaces" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfMr-qRORzH9ZcGzVDOVOSPhUKHHbSHKHgz7TI6AeplbJrr7cMFhXbBDsLtiLwBgm2OB4nDSOpg2Y86Yjr3Ij5FI_Y0gDAlkHE3MNywAnXi92cV4G1d20ogrfbcwX3DsqhplRpdmJrauiWVWcpXuuCqLHDEzyDQ1wG46VmGGBkEZg2N_744zJyHVlnEOpgxD5Sy-sNJ8aWctxWyReC_ksBKAHEsNrCVMNmUWj43IgWIuoRGj1bsa7qxoQwF0VUVFqcDiVDURKjprU"/>
+</div>
+<div class="flex-1 space-y-4">
+<div class="grid grid-cols-2 gap-y-4">
+<div>
+<label class="text-[10px] text-secondary-container block">HANDLE</label>
+<span class="text-xl font-bold">@alexkim</span>
+</div>
+<div>
+<label class="text-[10px] text-secondary-container block">STATUS</label>
+<span class="text-xl font-bold text-primary-container">ACTIVE</span>
+</div>
+<div>
+<label class="text-[10px] text-secondary-container block">RANK</label>
+<span class="text-xl font-bold">GOLD II</span>
+</div>
+<div>
+<label class="text-[10px] text-secondary-container block">ELO_RATING</label>
+<span class="text-xl font-bold text-tertiary-fixed-dim">1408</span>
+</div>
+<div>
+<label class="text-[10px] text-secondary-container block">WIN_RATE</label>
+<span class="text-xl font-bold">63.4%</span>
+</div>
+<div>
+<label class="text-[10px] text-secondary-container block">JOIN_DATE</label>
+<span class="text-xl font-bold">2023.11.04</span>
+</div>
+</div>
+<div class="pt-4 border-t border-green-900/20">
+<label class="text-[10px] text-secondary-container block mb-2">ELO_HISTORY_STREAM</label>
+<div class="text-2xl tracking-tighter text-primary-container/80 break-all leading-tight">
+                                ▂▃▄▅▆▇█▇▆▅▄▃▂ ▂▃▄▅▆▇█▇▆▅▄▃▂ ▂▃▄▅▆▇█
+                            </div>
+</div>
+</div>
+</div>
+</section>
+<!-- Rank Progress -->
+<section class="col-span-12 lg:col-span-5 border border-secondary-container p-6 bg-surface-container-low">
+<h3 class="text-sm font-bold mb-8 border-b border-green-900/40 pb-2">RANK_EVOLUTION_MAP</h3>
+<div class="space-y-12 py-4">
+<div class="relative flex items-center justify-between">
+<div class="absolute h-[1px] bg-secondary-container w-full z-0"></div>
+<div class="relative z-10 flex flex-col items-center">
+<span class="w-3 h-3 bg-secondary-container rounded-full mb-2"></span>
+<span class="text-[10px] text-secondary-container">BRONZE</span>
+</div>
+<div class="relative z-10 flex flex-col items-center">
+<span class="w-3 h-3 bg-secondary-container rounded-full mb-2"></span>
+<span class="text-[10px] text-secondary-container">SILVER</span>
+</div>
+<div class="relative z-10 flex flex-col items-center">
+<div class="w-5 h-5 border-2 border-primary-container bg-black flex items-center justify-center mb-2">
+<div class="w-2 h-2 bg-primary-container"></div>
+</div>
+<span class="text-[10px] font-bold text-primary-container">GOLD</span>
+</div>
+<div class="relative z-10 flex flex-col items-center">
+<span class="w-3 h-3 border border-secondary-container rounded-full mb-2"></span>
+<span class="text-[10px] text-secondary-container">PLATINUM</span>
+</div>
+</div>
+<div class="pt-4">
+<label class="text-[10px] text-secondary-container block mb-2">CURRENT_PROGRESS (1408 / 1600 TO PLATINUM)</label>
+<div class="w-full h-4 bg-surface-container-lowest border border-secondary-container flex p-[2px]">
+<div class="bg-primary-container h-full w-[70%]"></div>
+<div class="bg-secondary-container/20 h-full w-[30%]"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Tags Bar Chart -->
+<section class="col-span-12 lg:col-span-4 border border-secondary-container p-6">
+<h3 class="text-sm font-bold mb-6">SKILL_DISTRIBUTION</h3>
+<div class="space-y-4">
+<div class="flex items-end gap-3 h-40 border-b border-l border-green-900/40 pb-2 pl-2">
+<div class="flex flex-col items-center flex-1">
+<div class="w-full bg-primary-container" style="height: 85%;"></div>
+<span class="text-[8px] mt-2 rotate-45 origin-left">ALGO</span>
+</div>
+<div class="flex flex-col items-center flex-1">
+<div class="w-full bg-primary-container/60" style="height: 45%;"></div>
+<span class="text-[8px] mt-2 rotate-45 origin-left">SYST</span>
+</div>
+<div class="flex flex-col items-center flex-1">
+<div class="w-full bg-primary-container" style="height: 70%;"></div>
+<span class="text-[8px] mt-2 rotate-45 origin-left">DATA</span>
+</div>
+<div class="flex flex-col items-center flex-1">
+<div class="w-full bg-primary-container/40" style="height: 30%;"></div>
+<span class="text-[8px] mt-2 rotate-45 origin-left">DEVO</span>
+</div>
+<div class="flex flex-col items-center flex-1">
+<div class="w-full bg-primary-container/80" style="height: 60%;"></div>
+<span class="text-[8px] mt-2 rotate-45 origin-left">MATH</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Recent Matches Table -->
+<section class="col-span-12 lg:col-span-8 border border-secondary-container p-6 overflow-hidden">
+<h3 class="text-sm font-bold mb-4">RECENT_BATTLE_LOGS</h3>
+<div class="w-full overflow-x-auto">
+<table class="w-full text-left text-xs border-collapse">
+<thead>
+<tr class="text-secondary-container border-b border-green-900/40">
+<th class="py-2 font-normal">TIMESTAMP</th>
+<th class="py-2 font-normal">OPPONENT</th>
+<th class="py-2 font-normal">OUTCOME</th>
+<th class="py-2 font-normal">DELTA</th>
+<th class="py-2 font-normal">RUNTIME</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-green-900/10">
+<tr class="hover:bg-green-900/10">
+<td class="py-3">2024.05.21 14:02</td>
+<td class="py-3">@bit_crusher</td>
+<td class="py-3 text-primary-container font-bold">VICTORY</td>
+<td class="py-3 text-primary-container">+24 ELO</td>
+<td class="py-3">142ms</td>
+</tr>
+<tr class="hover:bg-green-900/10">
+<td class="py-3">2024.05.21 12:45</td>
+<td class="py-3">@null_pointer</td>
+<td class="py-3 text-error font-bold">DEFEAT</td>
+<td class="py-3 text-error">-18 ELO</td>
+<td class="py-3">205ms</td>
+</tr>
+<tr class="hover:bg-green-900/10">
+<td class="py-3">2024.05.20 22:15</td>
+<td class="py-3">@hex_jockey</td>
+<td class="py-3 text-primary-container font-bold">VICTORY</td>
+<td class="py-3 text-primary-container">+21 ELO</td>
+<td class="py-3">98ms</td>
+</tr>
+<tr class="hover:bg-green-900/10">
+<td class="py-3">2024.05.20 18:30</td>
+<td class="py-3">@stack_ovrf</td>
+<td class="py-3 text-primary-container font-bold">VICTORY</td>
+<td class="py-3 text-primary-container">+19 ELO</td>
+<td class="py-3">312ms</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+<!-- Terminal Output Decorator -->
+<div class="mt-12 p-4 bg-surface-container-lowest border border-green-900/20 font-mono text-[10px] text-secondary-container leading-relaxed">
+            [SYS] PARSING USER_DATA... DONE<br/>
+            [SYS] CALCULATING NODE_TRAJECTORY... STABLE<br/>
+            [SYS] CACHE_FLUSH COMPLETE // ALL_SYSTEMS_OPTIMAL
+        </div>
+</main>
+<!-- Footer -->
+<footer class="fixed bottom-0 w-full px-4 py-1 flex justify-between items-center z-50 bg-black border-t border-green-900/20 text-[10px] font-body tracking-tighter text-secondary-container">
+<div>(C) 2024 LEETBATTLE_MAINFRAME // ALL_RIGHTS_RESERVED</div>
+<div class="flex gap-6">
+<span class="text-primary-container">STATUS:NOMINAL</span>
+<span>LATENCY:24MS</span>
+<span>ENCRYPTION:ACTIVE</span>
+</div>
+</footer>
+</body></html>

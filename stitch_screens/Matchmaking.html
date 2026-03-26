@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LEETBATTLE_SYS // MATCHMAKING</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Space+Mono:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            background-color: #000000;
+            color: #00ff41;
+            font-family: 'Space Mono', monospace;
+            overflow-x: hidden;
+        }
+        .font-headline { font-family: 'Space Grotesk', sans-serif; }
+        .text-shadow-glow {
+            text-shadow: 0 0 5px #00ff41;
+        }
+        .scanline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                rgba(0, 255, 65, 0.03) 50%,
+                rgba(0, 0, 0, 0) 50%
+            );
+            background-size: 100% 4px;
+            z-index: 100;
+            pointer-events: none;
+        }
+        .cursor-blink {
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+        .ascii-border {
+            font-family: 'Space Mono', monospace;
+            line-height: 1;
+            user-select: none;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-dim": "#131313",
+                        "primary": "#ebffe2",
+                        "on-tertiary-fixed-variant": "#614000",
+                        "on-error-container": "#ffdad6",
+                        "tertiary-container": "#ffd69b",
+                        "surface-bright": "#393939",
+                        "on-surface": "#e2e2e2",
+                        "on-secondary": "#00390f",
+                        "secondary-fixed-dim": "#83da87",
+                        "on-secondary-fixed-variant": "#00531a",
+                        "on-primary-fixed": "#002203",
+                        "surface-variant": "#353535",
+                        "on-secondary-fixed": "#002106",
+                        "on-background": "#e2e2e2",
+                        "inverse-on-surface": "#303030",
+                        "tertiary-fixed": "#ffddaf",
+                        "inverse-surface": "#e2e2e2",
+                        "on-tertiary-fixed": "#281800",
+                        "surface": "#000000",
+                        "primary-fixed-dim": "#00e639",
+                        "surface-container-high": "#2a2a2a",
+                        "on-primary-fixed-variant": "#00530e",
+                        "on-secondary-container": "#89e18d",
+                        "on-primary-container": "#007117",
+                        "surface-container-lowest": "#0e0e0e",
+                        "secondary-container": "#006622",
+                        "secondary-fixed": "#9ef7a1",
+                        "primary-container": "#00ff41",
+                        "surface-container-highest": "#353535",
+                        "tertiary": "#fff8f2",
+                        "secondary": "#83da87",
+                        "on-error": "#690005",
+                        "on-tertiary": "#432c00",
+                        "surface-container-low": "#1b1b1b",
+                        "primary-fixed": "#72ff70",
+                        "surface-container": "#1f1f1f",
+                        "on-tertiary-container": "#825800",
+                        "outline": "#84967e",
+                        "on-primary": "#003907",
+                        "background": "#000000",
+                        "tertiary-fixed-dim": "#ffba43",
+                        "outline-variant": "#3b4b37",
+                        "error-container": "#93000a",
+                        "surface-tint": "#00e639",
+                        "on-surface-variant": "#b9ccb2",
+                        "inverse-primary": "#006e16",
+                        "error": "#ffb4ab"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Space Mono"],
+                        "label": ["Space Mono"]
+                    },
+                    borderRadius: {"DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-black text-primary-container font-body">
+<div class="scanline"></div>
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 right-0 z-50 bg-black border-b border-secondary-container/40 flex justify-between items-center w-full px-6 py-3">
+<div class="text-xl font-headline font-bold text-primary-container tracking-widest text-shadow-glow uppercase">
+            LEETBATTLE_SYS
+        </div>
+<nav class="hidden md:flex gap-8 items-center">
+<a class="text-secondary-container/60 font-headline tracking-[0.05em] uppercase font-bold hover:text-primary-container hover:bg-secondary-container/20 transition-all" href="#">TERMINAL</a>
+<a class="text-primary-container border-b-2 border-primary-container pb-1 font-headline tracking-[0.05em] uppercase font-bold" href="#">RANKED</a>
+<a class="text-secondary-container/60 font-headline tracking-[0.05em] uppercase font-bold hover:text-primary-container hover:bg-secondary-container/20 transition-all" href="#">ARENA</a>
+<a class="text-secondary-container/60 font-headline tracking-[0.05em] uppercase font-bold hover:text-primary-container hover:bg-secondary-container/20 transition-all" href="#">LOGS</a>
+</nav>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary-container cursor-pointer hover:text-primary transition-colors" data-icon="settings">settings</span>
+<span class="material-symbols-outlined text-primary-container cursor-pointer hover:text-primary transition-colors" data-icon="terminal">terminal</span>
+<span class="material-symbols-outlined text-primary-container cursor-pointer hover:text-primary transition-colors" data-icon="power_settings_new">power_settings_new</span>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full z-40 flex flex-col pt-16 w-64 border-r border-secondary-container/40 bg-black">
+<div class="px-6 py-8 flex flex-col gap-1">
+<div class="text-lg font-black text-primary-container font-headline uppercase">OPERATOR_01</div>
+<div class="text-[10px] text-secondary-container uppercase tracking-widest">RANK: ELITE</div>
+</div>
+<nav class="flex-1 flex flex-col px-4 gap-2">
+<a class="text-secondary-container hover:bg-secondary-container/30 hover:text-primary-container p-2 flex items-center gap-3 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span class="text-xs uppercase font-bold">DASHBOARD</span>
+</a>
+<a class="bg-primary-container text-black font-bold p-2 flex items-center gap-3" href="#">
+<span class="material-symbols-outlined" data-icon="swords">swords</span>
+<span class="text-xs uppercase font-bold">BATTLE_INIT</span>
+</a>
+<a class="text-secondary-container hover:bg-secondary-container/30 hover:text-primary-container p-2 flex items-center gap-3 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="leaderboard">leaderboard</span>
+<span class="text-xs uppercase font-bold">LADDER</span>
+</a>
+<a class="text-secondary-container hover:bg-secondary-container/30 hover:text-primary-container p-2 flex items-center gap-3 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="text-xs uppercase font-bold">REPLAYS</span>
+</a>
+<a class="text-secondary-container hover:bg-secondary-container/30 hover:text-primary-container p-2 flex items-center gap-3 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-xs uppercase font-bold">SYSTEM_CFG</span>
+</a>
+</nav>
+<div class="p-4 mt-auto border-t border-secondary-container/20">
+<button class="w-full border border-primary-container text-primary-container py-2 text-xs font-bold uppercase hover:bg-primary-container hover:text-black transition-all">
+                NEW_BATTLE
+            </button>
+</div>
+<div class="p-4 flex flex-col gap-2">
+<a class="text-[10px] text-secondary-container flex items-center gap-2 hover:text-secondary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="description">description</span> DOCS
+            </a>
+<a class="text-[10px] text-secondary-container flex items-center gap-2 hover:text-secondary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="help_center">help_center</span> SUPPORT
+            </a>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="pl-64 pt-16 pb-8 min-h-screen flex items-center justify-center bg-surface">
+<div class="w-full max-w-4xl px-8">
+<!-- Terminal Header -->
+<div class="mb-10 text-center">
+<h1 class="text-5xl font-headline font-bold tracking-[0.1em] text-shadow-glow uppercase mb-2">BATTLE_INIT</h1>
+<p class="text-secondary-container uppercase text-xs tracking-widest">SUB_ROUTINE: MATCHMAKING_V4.2</p>
+</div>
+<!-- Central Terminal Panel -->
+<div class="relative">
+<!-- ASCII Frame -->
+<div class="ascii-border text-secondary-container/40 absolute -top-4 -left-4 w-full h-full pointer-events-none select-none">
+                    ╔══════════════════════════════════════════════════════════════════════════════════════════════════════════╗
+                </div>
+<div class="ascii-border text-secondary-container/40 absolute -bottom-4 -left-4 w-full pointer-events-none select-none">
+                    ╚══════════════════════════════════════════════════════════════════════════════════════════════════════════╝
+                </div>
+<div class="bg-surface-container-lowest border border-secondary-container/20 p-8 md:p-12">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+<!-- Left Column: Selection -->
+<div class="space-y-8">
+<section>
+<label class="block text-[10px] text-secondary-container mb-4 tracking-[0.2em] uppercase">01 // SELECT_MODE</label>
+<div class="flex flex-col gap-3">
+<button class="flex items-center justify-between border border-primary-container bg-primary-container text-black px-4 py-3 font-bold group">
+<span>[1] RANKED</span>
+<span class="material-symbols-outlined text-lg" data-icon="trending_up">trending_up</span>
+</button>
+<button class="flex items-center justify-between border border-secondary-container/40 text-secondary-container px-4 py-3 hover:border-primary-container hover:text-primary-container transition-all group">
+<span>[2] CASUAL</span>
+<span class="material-symbols-outlined text-lg" data-icon="sports_esports">sports_esports</span>
+</button>
+<button class="flex items-center justify-between border border-secondary-container/40 text-secondary-container px-4 py-3 hover:border-primary-container hover:text-primary-container transition-all group">
+<span>[3] BLITZ</span>
+<span class="material-symbols-outlined text-lg" data-icon="bolt">bolt</span>
+</button>
+</div>
+</section>
+<section>
+<label class="block text-[10px] text-secondary-container mb-4 tracking-[0.2em] uppercase">02 // DIFFICULTY</label>
+<div class="flex gap-2">
+<button class="flex-1 py-2 border border-secondary-container/40 text-secondary-container text-xs font-bold hover:bg-secondary-container/10 transition-all">EASY</button>
+<button class="flex-1 py-2 border border-primary-container text-primary-container text-xs font-bold bg-secondary-container/20">MEDIUM</button>
+<button class="flex-1 py-2 border border-secondary-container/40 text-secondary-container text-xs font-bold hover:bg-secondary-container/10 transition-all">HARD</button>
+</div>
+</section>
+</div>
+<!-- Right Column: System Status -->
+<div class="flex flex-col justify-between">
+<div class="space-y-6">
+<label class="block text-[10px] text-secondary-container mb-4 tracking-[0.2em] uppercase">03 // SYSTEM_STATE</label>
+<div class="bg-black/50 p-6 border-l-2 border-secondary-container space-y-3 font-mono text-sm">
+<div class="text-secondary-container flex gap-2">
+<span class="opacity-50">&gt;</span>
+<span>INITIALIZING_MATCHMAKER...</span>
+</div>
+<div class="text-secondary-container flex gap-2">
+<span class="opacity-50">&gt;</span>
+<span>ESTABLISHING_P2P_HANDSHAKE...</span>
+</div>
+<div class="text-secondary-container flex gap-2 items-center">
+<span class="opacity-50">&gt;</span>
+<span class="animate-pulse">SEARCHING FOR OPPONENT...</span>
+</div>
+<div class="text-secondary-container flex gap-2">
+<span class="opacity-50">&gt;</span>
+<span class="animate-pulse">SCANNING BRACKET...</span>
+<span class="cursor-blink">_</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 pt-4">
+<div class="bg-surface-container-low p-3">
+<div class="text-[10px] text-secondary-container uppercase mb-1">REGION</div>
+<div class="text-primary-container text-xs font-bold">EU_WEST_1</div>
+</div>
+<div class="bg-surface-container-low p-3">
+<div class="text-[10px] text-secondary-container uppercase mb-1">PING</div>
+<div class="text-primary-container text-xs font-bold">14 MS</div>
+</div>
+</div>
+</div>
+<div class="pt-8">
+<button class="w-full bg-primary-container text-black font-headline font-black py-4 text-xl tracking-[0.2em] uppercase transition-all active:scale-[0.98] hover:bg-primary-fixed-dim">
+                                    [ ENTER QUEUE ]
+                                </button>
+<p class="text-[9px] text-secondary-container text-center mt-4 uppercase tracking-tighter italic">
+                                    ESTIMATED_WAIT_TIME: 00:42 SEC
+                                </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Additional Context / Bento Style Metadata -->
+<div class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="border border-secondary-container/20 p-4 bg-surface-container-lowest">
+<div class="flex items-center gap-3 mb-2">
+<span class="material-symbols-outlined text-secondary-container" data-icon="groups">groups</span>
+<h3 class="text-[10px] text-primary-container uppercase font-bold tracking-widest">ACTIVE_OPERATORS</h3>
+</div>
+<div class="text-2xl font-headline font-bold text-shadow-glow">12,402</div>
+<div class="w-full bg-secondary-container/10 h-[2px] mt-4 overflow-hidden">
+<div class="bg-primary-container h-full w-2/3"></div>
+</div>
+</div>
+<div class="border border-secondary-container/20 p-4 bg-surface-container-lowest">
+<div class="flex items-center gap-3 mb-2">
+<span class="material-symbols-outlined text-secondary-container" data-icon="emoji_events">emoji_events</span>
+<h3 class="text-[10px] text-primary-container uppercase font-bold tracking-widest">SEASON_REWARDS</h3>
+</div>
+<div class="text-[11px] text-secondary-container leading-relaxed">
+                        CURRENT_CYCLE: PHANTOM_PROTOCOL<br/>
+                        END_IN: 14D 02H 11M
+                    </div>
+</div>
+<div class="border border-secondary-container/20 p-4 bg-surface-container-lowest flex flex-col justify-center items-center">
+<div class="text-[10px] text-secondary-container mb-2 uppercase">TERMINAL_IMAGE_FEED</div>
+<img class="w-full h-16 object-cover grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all border border-secondary-container/40" data-alt="abstract cyber security green code flowing on a black background with lens flare and bokeh" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxld2i-dtt4Uuu-s1EN9gEQHBpxWPJWJ4gL-12-KImbAhlbOHvYiFDxaBo4ec4tI-Lid4PtcuWlHPX_PzuoOc8WjNE8xLRh2Q3ncNCeBPikOLWrBLfvH4pOkBSFcCq2jWScq6QdcvJiAFn_P-hXI0M7lPB9z_KdynO8U2rmvbmF6XsbVvrt1COxnIYPRL4LSJvfdqvUs50utzlXGypQsI5c_dhhmp_ALi1ff3AKMb7xnLU3rqdJIM_zsNgtF2bktny5dlEF8U_ctk"/>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="fixed bottom-0 w-full px-4 py-1 flex justify-between items-center z-50 bg-black border-t border-secondary-container/20">
+<div class="text-secondary-container font-body text-[10px] tracking-tighter uppercase">
+            (C) 2024 LEETBATTLE_MAINFRAME // ALL_RIGHTS_RESERVED
+        </div>
+<div class="flex gap-6">
+<span class="text-primary-container font-body text-[10px] tracking-tighter">STATUS:NOMINAL</span>
+<span class="text-secondary-container font-body text-[10px] tracking-tighter">LATENCY:24MS</span>
+<span class="text-secondary-container font-body text-[10px] tracking-tighter">ENCRYPTION:ACTIVE</span>
+</div>
+</footer>
+</body></html>
