@@ -9,23 +9,12 @@
 }
 
 .text-shadow-glow {
-    text-shadow: 0 0 5px #00ff41;
+    text-shadow: 0 0 12px theme('colors.primary-container / 40%');
 }
 
 .scanline {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-        to bottom,
-        rgba(0, 255, 65, 0.03) 50%,
-        rgba(0, 0, 0, 0) 50%
-    );
-    background-size: 100% 4px;
-    z-index: 100;
-    pointer-events: none;
+    /* Scanlines removed to move away from CLI style and towards a smooth glass UI */
+    display: none;
 }
 
 .cursor-blink {
