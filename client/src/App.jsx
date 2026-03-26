@@ -6,7 +6,9 @@ import { disconnectSocket } from "./hooks/useSocket";
 import SignIn from "./pages/SignIn";
 import Matchmaking from "./pages/Matchmaking";
 import Battle from "./pages/Battle";
+import Home from "./pages/Home";
 import { ProfilePage, LeaderboardPage, ResultPage } from "./pages/Pages";
+import DailyChallenge from "./pages/DailyChallenge";
 
 function Layout({ children }) {
   const navigate = useNavigate();
@@ -23,12 +25,12 @@ function Layout({ children }) {
       {/* TopAppBar */}
       <header className="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-14 bg-slate-950/50 backdrop-blur-xl border-b border-white/10 shadow-[0_0_20px_rgba(99,102,241,0.1)]">
         <div className="flex items-center gap-8">
-          <h1 onClick={() => navigate('/play')} className="cursor-pointer text-2xl font-bold bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent font-headline tracking-tight">
+          <h1 onClick={() => navigate('/')} className="cursor-pointer text-2xl font-bold bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent font-headline tracking-tight italic">
             LeetBattle
           </h1>
           <div className="hidden md:flex items-center gap-6 text-sm font-medium">
-            <button onClick={() => navigate('/play')} className={`transition-colors ${isActive('/play') ? 'text-indigo-400 font-bold' : 'text-slate-400 hover:text-white'}`}>Arena</button>
-            <button onClick={() => navigate('/leaderboard')} className={`transition-colors ${isActive('/leaderboard') ? 'text-indigo-400 font-bold' : 'text-slate-400 hover:text-white'}`}>Leaderboard</button>
+            <button onClick={() => navigate('/play')} className={`transition-colors font-headline uppercase tracking-wider ${isActive('/play') ? 'text-indigo-400 font-bold' : 'text-slate-400 hover:text-white'}`}>Arena</button>
+            <button onClick={() => navigate('/leaderboard')} className={`transition-colors font-headline uppercase tracking-wider ${isActive('/leaderboard') ? 'text-indigo-400 font-bold' : 'text-slate-400 hover:text-white'}`}>Leaderboard</button>
           </div>
         </div>
         <div className="flex items-center gap-4">
@@ -39,7 +41,7 @@ function Layout({ children }) {
           <button title="Settings" className="p-1 text-slate-400 hover:text-primary transition-colors">
             <span className="material-symbols-outlined text-sm">settings</span>
           </button>
-          <button title="Sign Out" onClick={() => { disconnectSocket(); supabase.auth.signOut(); }} className="p-1 text-slate-400 hover:text-error transition-colors">
+          <button title="Sign Out" onClick={() => { disconnectSocket(); supabase.auth.signOut(); navigate('/'); }} className="p-1 text-slate-400 hover:text-error transition-colors">
             <span className="material-symbols-outlined text-sm">logout</span>
           </button>
         </div>
@@ -66,6 +68,10 @@ function Layout({ children }) {
           <button onClick={() => navigate('/play')} className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 group ${isActive('/play') && !isActive('/battle') ? 'text-indigo-400 bg-indigo-500/10 border-l-2 border-indigo-500 rounded-r-lg' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}>
             <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform text-sm">swords</span>
             <span className="font-headline uppercase tracking-widest text-xs">Arena</span>
+          </button>
+          <button onClick={() => navigate('/daily')} className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 group ${isActive('/daily') ? 'text-indigo-400 bg-indigo-500/10 border-l-2 border-indigo-500 rounded-r-lg' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}>
+            <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform text-sm">event_note</span>
+            <span className="font-headline uppercase tracking-widest text-xs">Daily Challenge</span>
           </button>
           <button onClick={() => navigate('/leaderboard')} className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 group ${isActive('/leaderboard') ? 'text-indigo-400 bg-indigo-500/10 border-l-2 border-indigo-500 rounded-r-lg' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}>
             <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform text-sm">leaderboard</span>
@@ -98,6 +104,10 @@ function Layout({ children }) {
           <span className="material-symbols-outlined text-xl">swords</span>
           <span className="text-[10px] font-bold">Arena</span>
         </button>
+        <button onClick={() => navigate('/daily')} className={`flex flex-col items-center gap-1 ${isActive('/daily') ? 'text-indigo-400' : 'text-slate-500'}`}>
+          <span className="material-symbols-outlined text-xl">event_note</span>
+          <span className="text-[10px] font-bold">Daily</span>
+        </button>
         <button onClick={() => navigate('/leaderboard')} className={`flex flex-col items-center gap-1 ${isActive('/leaderboard') ? 'text-indigo-400' : 'text-slate-500'}`}>
           <span className="material-symbols-outlined text-xl">leaderboard</span>
           <span className="text-[10px] font-bold">Rank</span>
@@ -114,12 +124,15 @@ function Layout({ children }) {
 const ProtectedRoute = ({ children }) => {
   const { session, loading, error } = useAuth();
   
-  if (loading || !session) return (
+  if (loading) return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center text-primary-container font-mono text-sm tracking-widest text-shadow-glow animate-pulse">
         <div className="mb-4">CONNECTING_TO_MAINFRAME...</div>
-        {error && <div className="text-error text-[10px] uppercase">WARN: {error}</div>}
       </div>
   );
+
+  if (!session) {
+    return <Navigate to="/signin" />;
+  }
   
   return (
     <Layout>
@@ -145,14 +158,16 @@ export default function App() {
   return (
     <>
       <Routes>
+        <Route path="/" element={<Home />} />
         <Route path="/signin" element={session && !session.user?.email?.includes('@temp.sys') ? <Navigate to="/play" /> : <SignIn />} />
         
         <Route path="/play" element={<ProtectedRoute><Matchmaking /></ProtectedRoute>} />
         <Route path="/battle" element={<ProtectedRoute><Battle /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
         <Route path="/leaderboard" element={<ProtectedRoute><LeaderboardPage /></ProtectedRoute>} />
+        <Route path="/daily" element={<ProtectedRoute><DailyChallenge /></ProtectedRoute>} />
         <Route path="/result" element={<ProtectedRoute><ResultPage /></ProtectedRoute>} />
-        <Route path="*" element={<Navigate to="/play" />} />
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </>
   );
