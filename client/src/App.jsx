@@ -18,83 +18,95 @@ function Layout({ children }) {
   const isActive = (path) => location.pathname.startsWith(path);
 
   return (
-    <div className="min-h-screen bg-black text-primary-container font-body">
-      <div className="scanline"></div>
+    <div className="min-h-screen bg-surface text-on-surface font-body selection:bg-primary selection:text-on-primary">
       
       {/* TopAppBar */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-black border-b border-secondary-container/40 flex justify-between items-center w-full px-6 py-3">
-        <div className="text-xl font-headline font-bold text-primary-container tracking-widest text-shadow-glow uppercase cursor-pointer" onClick={() => navigate('/play')}>
-          LEETBATTLE_SYS
+      <header className="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-14 bg-slate-950/50 backdrop-blur-xl border-b border-white/10 shadow-[0_0_20px_rgba(99,102,241,0.1)]">
+        <div className="flex items-center gap-8">
+          <h1 onClick={() => navigate('/play')} className="cursor-pointer text-2xl font-bold bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent font-headline tracking-tight">
+            LeetBattle
+          </h1>
+          <div className="hidden md:flex items-center gap-6 text-sm font-medium">
+            <button onClick={() => navigate('/play')} className={`transition-colors ${isActive('/play') ? 'text-indigo-400 font-bold' : 'text-slate-400 hover:text-white'}`}>Arena</button>
+            <button onClick={() => navigate('/leaderboard')} className={`transition-colors ${isActive('/leaderboard') ? 'text-indigo-400 font-bold' : 'text-slate-400 hover:text-white'}`}>Leaderboard</button>
+          </div>
         </div>
-        <nav className="hidden md:flex gap-8 items-center">
-          <button onClick={() => navigate('/play')} className={`font-headline tracking-[0.05em] uppercase font-bold hover:text-primary-container hover:bg-secondary-container/20 transition-all ${isActive('/play') ? 'text-primary-container border-b-2 border-primary-container pb-1' : 'text-secondary-container/60'}`}>ARENA</button>
-          <button onClick={() => navigate('/leaderboard')} className={`font-headline tracking-[0.05em] uppercase font-bold hover:text-primary-container hover:bg-secondary-container/20 transition-all ${isActive('/leaderboard') ? 'text-primary-container border-b-2 border-primary-container pb-1' : 'text-secondary-container/60'}`}>RANKED</button>
-          <button onClick={() => navigate('/profile')} className={`font-headline tracking-[0.05em] uppercase font-bold hover:text-primary-container hover:bg-secondary-container/20 transition-all ${isActive('/profile') ? 'text-primary-container border-b-2 border-primary-container pb-1' : 'text-secondary-container/60'}`}>LOGS</button>
-        </nav>
         <div className="flex items-center gap-4">
-          <span className="material-symbols-outlined text-primary-container cursor-pointer hover:text-primary transition-colors">settings</span>
-          <span className="material-symbols-outlined text-primary-container cursor-pointer hover:text-primary transition-colors">terminal</span>
-          <span title="Sign Out" onClick={() => { disconnectSocket(); supabase.auth.signOut(); }} className="material-symbols-outlined text-primary-container cursor-pointer hover:text-error transition-colors">power_settings_new</span>
+          <div className="hidden md:flex flex-col items-end mr-2">
+            <span className="text-xs font-bold text-slate-300">{user?.user_metadata?.username || "Guest"}</span>
+            <span className="text-[10px] text-slate-500 font-mono tracking-widest">{user?.email?.includes('@temp.sys') ? 'UNREGISTERED' : 'VERIFIED'}</span>
+          </div>
+          <button title="Settings" className="p-1 text-slate-400 hover:text-primary transition-colors">
+            <span className="material-symbols-outlined text-sm">settings</span>
+          </button>
+          <button title="Sign Out" onClick={() => { disconnectSocket(); supabase.auth.signOut(); }} className="p-1 text-slate-400 hover:text-error transition-colors">
+            <span className="material-symbols-outlined text-sm">logout</span>
+          </button>
         </div>
       </header>
       
-      {/* SideNavBar */}
-      <aside className="hidden md:flex fixed left-0 top-0 h-full z-40 flex-col pt-16 w-64 border-r border-secondary-container/40 bg-black">
-        <div className="px-6 py-8 flex flex-col gap-1">
-          <div className="text-lg font-black text-primary-container font-headline uppercase truncate" title={user?.email || "OPERATOR"}>
-            {user?.user_metadata?.username || "OPERATOR_01"}
+      {/* SideNavBar (Floating Glassmorphism) */}
+      <nav className="fixed left-4 top-20 bottom-4 w-64 flex-col py-6 bg-slate-950/40 backdrop-blur-2xl rounded-xl hidden lg:flex shadow-[inset_0_1px_1px_rgba(255,255,255,0.05),0_8px_32px_0_rgba(0,0,0,0.3)]">
+        <div className="px-6 mb-8">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-primary-container rounded flex items-center justify-center">
+              <span className="material-symbols-outlined text-on-primary-container text-sm">terminal</span>
+            </div>
+            <div>
+              <h2 className="font-headline font-black text-indigo-500 text-sm tracking-widest uppercase">LEETBATTLE</h2>
+              <p className="text-[10px] text-slate-500 tracking-[0.2em]">MASTER TIER</p>
+            </div>
           </div>
-          <div className="text-[10px] text-secondary-container uppercase tracking-widest">RANK: ELITE</div>
         </div>
-        <nav className="flex-1 flex flex-col px-4 gap-2">
-          <button onClick={() => navigate('/profile')} className={`p-2 flex items-center gap-3 transition-all ${isActive('/profile') ? 'bg-primary-container text-black font-bold' : 'text-secondary-container hover:bg-secondary-container/30 hover:text-primary-container'}`}>
-            <span className="material-symbols-outlined">grid_view</span>
-            <span className="text-xs uppercase font-bold">DASHBOARD</span>
+        <div className="flex-1 flex flex-col gap-1 px-2">
+          <button onClick={() => navigate('/profile')} className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 group ${isActive('/profile') ? 'text-indigo-400 bg-indigo-500/10 border-l-2 border-indigo-500 rounded-r-lg' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}>
+            <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform text-sm">dashboard</span>
+            <span className="font-headline uppercase tracking-widest text-xs">Dashboard</span>
           </button>
-          <button onClick={() => navigate('/play')} className={`p-2 flex items-center gap-3 transition-all ${isActive('/play') && !isActive('/battle') ? 'bg-primary-container text-black font-bold' : 'text-secondary-container hover:bg-secondary-container/30 hover:text-primary-container'}`}>
-            <span className="material-symbols-outlined">swords</span>
-            <span className="text-xs uppercase font-bold">BATTLE_INIT</span>
+          <button onClick={() => navigate('/play')} className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 group ${isActive('/play') && !isActive('/battle') ? 'text-indigo-400 bg-indigo-500/10 border-l-2 border-indigo-500 rounded-r-lg' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}>
+            <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform text-sm">swords</span>
+            <span className="font-headline uppercase tracking-widest text-xs">Arena</span>
           </button>
-          <button onClick={() => navigate('/leaderboard')} className={`p-2 flex items-center gap-3 transition-all ${isActive('/leaderboard') ? 'bg-primary-container text-black font-bold' : 'text-secondary-container hover:bg-secondary-container/30 hover:text-primary-container'}`}>
-            <span className="material-symbols-outlined">leaderboard</span>
-            <span className="text-xs uppercase font-bold">LADDER</span>
-          </button>
-          <button className={`p-2 flex items-center gap-3 transition-all text-secondary-container hover:bg-secondary-container/30 hover:text-primary-container`}>
-            <span className="material-symbols-outlined">history</span>
-            <span className="text-xs uppercase font-bold">REPLAYS</span>
+          <button onClick={() => navigate('/leaderboard')} className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 group ${isActive('/leaderboard') ? 'text-indigo-400 bg-indigo-500/10 border-l-2 border-indigo-500 rounded-r-lg' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}>
+            <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform text-sm">leaderboard</span>
+            <span className="font-headline uppercase tracking-widest text-xs">Leaderboard</span>
           </button>
           {user?.email?.includes('@temp.sys') && (
-            <button onClick={() => navigate('/signin')} className="p-2 mt-4 flex items-center gap-3 transition-all text-accent-bright hover:bg-secondary-container/30">
-              <span className="material-symbols-outlined">login</span>
-              <span className="text-xs uppercase font-bold">LOG IN / REGISTER</span>
+            <button onClick={() => navigate('/signin')} className={`flex items-center gap-3 px-4 py-3 mt-4 text-primary rounded-lg transition-all duration-300 group hover:bg-white/5`}>
+              <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform text-sm">login</span>
+              <span className="font-headline uppercase tracking-widest text-xs">Log In / Register</span>
             </button>
           )}
-        </nav>
-        <div className="p-4 mt-auto border-t border-secondary-container/20">
-          <button onClick={() => navigate('/play')} className="w-full border border-primary-container text-primary-container py-2 text-xs font-bold uppercase hover:bg-primary-container hover:text-black transition-all">
-            NEW_BATTLE
+        </div>
+        <div className="px-4 mt-auto">
+          <button onClick={() => navigate('/play')} className="w-full py-3 bg-primary text-on-primary rounded-xl font-headline font-bold text-sm tracking-wider hover:opacity-90 active:scale-95 transition-all shadow-[0_0_20px_rgba(163,166,255,0.3)]">
+            START MATCH
           </button>
         </div>
-      </aside>
+      </nav>
 
       {/* Main Canvas */}
-      <main className="md:pl-64 pt-16 pb-8 min-h-screen flex items-start justify-center bg-surface relative z-10">
-        <div className="w-full max-w-5xl px-4 md:px-8 mt-8">
+      <main className="lg:ml-[18rem] pt-20 px-4 md:px-6 pb-12 relative z-10 flex justify-center">
+        <div className="w-full max-w-6xl">
           {children}
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="fixed bottom-0 w-full px-4 py-1 flex justify-between items-center z-50 bg-black border-t border-secondary-container/20">
-        <div className="text-secondary-container font-body text-[8px] md:text-[10px] tracking-tighter uppercase">
-            (C) 2024 LEETBATTLE_MAINFRAME // ALL_RIGHTS_RESERVED
-        </div>
-        <div className="hidden md:flex gap-6">
-          <span className="text-primary-container font-body text-[10px] tracking-tighter">STATUS:NOMINAL</span>
-          <span className="text-secondary-container font-body text-[10px] tracking-tighter">LATENCY:24MS</span>
-          <span className="text-secondary-container font-body text-[10px] tracking-tighter">ENCRYPTION:ACTIVE</span>
-        </div>
-      </footer>
+      
+      {/* Mobile Bottom Nav */}
+      <div className="lg:hidden fixed bottom-0 w-full h-16 bg-slate-950/80 backdrop-blur-xl border-t border-white/10 flex items-center justify-around px-4 z-50">
+        <button onClick={() => navigate('/play')} className={`flex flex-col items-center gap-1 ${isActive('/play') && !isActive('/battle') ? 'text-indigo-400' : 'text-slate-500'}`}>
+          <span className="material-symbols-outlined text-xl">swords</span>
+          <span className="text-[10px] font-bold">Arena</span>
+        </button>
+        <button onClick={() => navigate('/leaderboard')} className={`flex flex-col items-center gap-1 ${isActive('/leaderboard') ? 'text-indigo-400' : 'text-slate-500'}`}>
+          <span className="material-symbols-outlined text-xl">leaderboard</span>
+          <span className="text-[10px] font-bold">Rank</span>
+        </button>
+        <button onClick={() => navigate('/profile')} className={`flex flex-col items-center gap-1 ${isActive('/profile') ? 'text-indigo-400' : 'text-slate-500'}`}>
+          <span className="material-symbols-outlined text-xl">person</span>
+          <span className="text-[10px] font-bold">Profile</span>
+        </button>
+      </div>
     </div>
   );
 }

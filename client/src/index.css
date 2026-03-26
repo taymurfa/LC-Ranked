@@ -8,13 +8,18 @@
   }
 }
 
-.text-shadow-glow {
-    text-shadow: 0 0 12px theme('colors.primary-container / 40%');
+.glass-card {
+    background: rgba(25, 37, 64, 0.4);
+    backdrop-filter: blur(12px);
+    box-shadow: inset 0 0 0 1px rgba(163, 166, 255, 0.15);
 }
 
-.scanline {
-    /* Scanlines removed to move away from CLI style and towards a smooth glass UI */
-    display: none;
+.glow-primary {
+    box-shadow: 0 0 20px rgba(163, 166, 255, 0.3);
+}
+
+.glow-secondary {
+    box-shadow: 0 0 25px rgba(172, 138, 255, 0.4);
 }
 
 .cursor-blink {

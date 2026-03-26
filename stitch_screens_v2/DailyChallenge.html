@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Daily Challenge | LeetBattle</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary-dim": "#6063ee",
+                        "on-tertiary-container": "#003044",
+                        "on-secondary-container": "#d9c8ff",
+                        "on-secondary-fixed-variant": "#5f28c8",
+                        "surface-variant": "#192540",
+                        "surface-container": "#0f1930",
+                        "on-primary-fixed": "#000000",
+                        "on-secondary-fixed": "#40009b",
+                        "primary-fixed-dim": "#8387ff",
+                        "surface-tint": "#a3a6ff",
+                        "surface-container-low": "#091328",
+                        "tertiary-fixed": "#37bcf7",
+                        "tertiary-dim": "#05a9e3",
+                        "surface-container-highest": "#192540",
+                        "outline": "#6d758c",
+                        "surface-bright": "#1f2b49",
+                        "on-error-container": "#ffb2b9",
+                        "tertiary-container": "#2db7f2",
+                        "secondary-container": "#5516be",
+                        "secondary-fixed": "#dac9ff",
+                        "error-container": "#a70138",
+                        "primary-fixed": "#9396ff",
+                        "surface-container-high": "#141f38",
+                        "on-secondary": "#280067",
+                        "primary-container": "#9396ff",
+                        "outline-variant": "#40485d",
+                        "primary": "#a3a6ff",
+                        "error-dim": "#d73357",
+                        "on-error": "#490013",
+                        "on-background": "#dee5ff",
+                        "on-surface": "#dee5ff",
+                        "error": "#ff6e84",
+                        "on-tertiary-fixed-variant": "#003e56",
+                        "inverse-primary": "#494bd7",
+                        "on-tertiary": "#003b52",
+                        "secondary-fixed-dim": "#ceb9ff",
+                        "on-tertiary-fixed": "#001a27",
+                        "inverse-surface": "#faf8ff",
+                        "secondary-dim": "#8455ef",
+                        "surface-container-lowest": "#000000",
+                        "inverse-on-surface": "#4d556b",
+                        "surface": "#060e20",
+                        "on-primary-fixed-variant": "#0e009d",
+                        "on-primary-container": "#0a0081",
+                        "tertiary-fixed-dim": "#1bafe9",
+                        "on-primary": "#0f00a4",
+                        "secondary": "#ac8aff",
+                        "on-surface-variant": "#a3aac4",
+                        "background": "#060e20",
+                        "surface-dim": "#060e20",
+                        "tertiary": "#47c4ff"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Inter"],
+                        "mono": ["JetBrains Mono"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(15, 25, 48, 0.5);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(109, 117, 140, 0.2);
+        }
+        .neon-glow {
+            box-shadow: 0 0 20px rgba(163, 166, 255, 0.15);
+        }
+        .secondary-glow {
+            box-shadow: 0 0 30px rgba(172, 138, 255, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary-dim/30">
+<!-- TopAppBar Shell -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-12 bg-slate-950/50 backdrop-blur-xl border-b border-white/10 shadow-[0_0_20px_rgba(99,102,241,0.1)]">
+<div class="flex items-center gap-8">
+<span class="text-xl font-bold bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent font-headline tracking-tight">LeetBattle</span>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-slate-400 hover:text-white transition-colors text-sm font-medium" href="#">Dashboard</a>
+<a class="text-slate-400 hover:text-white transition-colors text-sm font-medium" href="#">Arena</a>
+<a class="text-indigo-400 font-bold text-sm font-medium" href="#">Daily Challenge</a>
+<a class="text-slate-400 hover:text-white transition-colors text-sm font-medium" href="#">Leaderboard</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-slate-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-slate-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<div class="h-8 w-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 p-0.5">
+<img alt="User avatar with indigo glow" class="h-full w-full rounded-full object-cover" data-alt="Close-up portrait of a digital artist avatar with futuristic glowing purple rim lighting and sleek dark tech wear." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoPjGfZ63MYT1UopBYEpz5xtdj7ex8gZGX5btmOeB3twV6Da7jpM5KQVrgdv8v1VyOVF8_VeT6E7TC5rmJ6-0kFGTMtMv9P9qFT9nkoHEgOSWxV9L4VdmUsWsDv7e30VtVU5UN4EW5fwfwKvlAwRB5705hHlm7xgk-L6phKZeQEfKS2YLss3AsYMths93hbah7MpaZqI9Pk5LoVzJF49bD5ktEpylRVvhWgSbHAnBM2OeyVA2x3GPKJrzfeJfctYC5ymH0UApmEGZC"/>
+</div>
+</div>
+</header>
+<!-- SideNavBar Shell (Web) -->
+<aside class="fixed left-4 top-16 bottom-4 w-64 flex flex-col py-6 bg-slate-950/40 backdrop-blur-2xl rounded-xl hidden lg:flex shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-primary rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary" data-icon="terminal">terminal</span>
+</div>
+<div>
+<h2 class="font-black text-indigo-500 font-headline text-sm tracking-widest">LEETBATTLE</h2>
+<p class="text-[10px] text-slate-500 font-headline uppercase">MASTER TIER</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 px-2 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-all duration-300 rounded-lg group" href="#">
+<span class="material-symbols-outlined text-xl group-hover:translate-x-1 transition-transform" data-icon="dashboard">dashboard</span>
+<span class="font-headline text-xs uppercase tracking-widest">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-all duration-300 rounded-lg group" href="#">
+<span class="material-symbols-outlined text-xl group-hover:translate-x-1 transition-transform" data-icon="swords">swords</span>
+<span class="font-headline text-xs uppercase tracking-widest">Arena</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-indigo-400 bg-indigo-500/10 border-l-2 border-indigo-500 transition-all duration-300 rounded-r-lg group" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="event_note">event_note</span>
+<span class="font-headline text-xs uppercase tracking-widest font-bold">Daily Challenge</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-all duration-300 rounded-lg group" href="#">
+<span class="material-symbols-outlined text-xl group-hover:translate-x-1 transition-transform" data-icon="leaderboard">leaderboard</span>
+<span class="font-headline text-xs uppercase tracking-widest">Leaderboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-all duration-300 rounded-lg group" href="#">
+<span class="material-symbols-outlined text-xl group-hover:translate-x-1 transition-transform" data-icon="code">code</span>
+<span class="font-headline text-xs uppercase tracking-widest">Practice</span>
+</a>
+</nav>
+<div class="px-4 mt-auto space-y-4">
+<button class="w-full py-3 bg-primary text-on-primary font-headline text-xs font-bold tracking-widest rounded-lg hover:bg-primary-dim transition-colors Active:opacity-80 scale-95 transition-all">
+                START MATCH
+            </button>
+<div class="pt-4 border-t border-white/5">
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-slate-300 transition-colors" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="help_outline">help_outline</span>
+<span class="font-headline text-[10px] uppercase tracking-widest">Support</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-slate-300 transition-colors" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="description">description</span>
+<span class="font-headline text-[10px] uppercase tracking-widest">Docs</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="pt-16 lg:pl-72 lg:pr-8 px-6 pb-20">
+<!-- Hero Section: Daily Challenge -->
+<section class="relative mt-8 rounded-2xl overflow-hidden bg-surface-container-low min-h-[400px] flex items-center">
+<div class="absolute inset-0 opacity-20 pointer-events-none">
+<div class="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-secondary-container rounded-full blur-[120px]"></div>
+<div class="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] bg-primary-container rounded-full blur-[100px]"></div>
+</div>
+<div class="relative z-10 w-full grid grid-cols-1 lg:grid-cols-2 gap-12 p-8 lg:p-16 items-center">
+<div class="space-y-6">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-error-container/20 text-error-dim border border-error-container/30">
+<span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+<span class="text-xs font-bold font-headline tracking-widest uppercase">Algorithm of the Day</span>
+</div>
+<div class="space-y-2">
+<h1 class="text-4xl lg:text-6xl font-black font-headline text-on-surface tracking-tight leading-none">
+                            #142: Invert Binary Tree
+                        </h1>
+<p class="text-slate-400 font-mono text-lg tracking-tight">Given the root of a binary tree, invert the tree, and return its root.</p>
+</div>
+<div class="flex flex-wrap gap-4 items-center">
+<div class="flex items-center gap-2 px-4 py-2 glass-panel rounded-xl">
+<span class="material-symbols-outlined text-secondary" data-icon="monitoring">monitoring</span>
+<div class="flex flex-col">
+<span class="text-[10px] text-slate-500 uppercase font-headline font-bold">Difficulty</span>
+<span class="text-sm font-bold text-secondary font-headline">HARD</span>
+</div>
+</div>
+<div class="flex items-center gap-2 px-4 py-2 glass-panel rounded-xl">
+<span class="material-symbols-outlined text-tertiary" data-icon="check_circle">check_circle</span>
+<div class="flex flex-col">
+<span class="text-[10px] text-slate-500 uppercase font-headline font-bold">Acceptance</span>
+<span class="text-sm font-bold text-on-surface font-headline">76.4%</span>
+</div>
+</div>
+<div class="flex items-center gap-2 px-4 py-2 glass-panel rounded-xl">
+<span class="material-symbols-outlined text-primary" data-icon="groups">groups</span>
+<div class="flex flex-col">
+<span class="text-[10px] text-slate-500 uppercase font-headline font-bold">Solvers</span>
+<span class="text-sm font-bold text-on-surface font-headline">12.4K</span>
+</div>
+</div>
+</div>
+<div class="pt-4">
+<button class="px-10 py-4 bg-secondary text-on-secondary font-headline font-black text-lg tracking-widest rounded-xl hover:scale-105 secondary-glow transition-all duration-300">
+                            SOLVE NOW
+                        </button>
+</div>
+</div>
+<div class="flex flex-col items-center lg:items-end justify-center space-y-4">
+<div class="glass-panel p-8 rounded-2xl flex flex-col items-center text-center w-full max-w-[320px]">
+<span class="text-xs font-bold text-slate-500 uppercase font-headline tracking-[0.2em] mb-4">Ends in</span>
+<div class="flex gap-4">
+<div class="flex flex-col">
+<span class="text-4xl font-black font-headline text-on-surface">14</span>
+<span class="text-[10px] text-slate-500 uppercase font-headline font-bold">Hrs</span>
+</div>
+<span class="text-4xl font-black font-headline text-secondary-dim">:</span>
+<div class="flex flex-col">
+<span class="text-4xl font-black font-headline text-on-surface">32</span>
+<span class="text-[10px] text-slate-500 uppercase font-headline font-bold">Min</span>
+</div>
+<span class="text-4xl font-black font-headline text-secondary-dim">:</span>
+<div class="flex flex-col">
+<span class="text-4xl font-black font-headline text-on-surface">09</span>
+<span class="text-[10px] text-slate-500 uppercase font-headline font-bold">Sec</span>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-white/5 w-full">
+<div class="flex justify-between items-center text-xs font-headline font-bold mb-2">
+<span class="text-slate-400">DAILY GOAL</span>
+<span class="text-primary">85% COMPLETE</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-primary to-secondary" style="width: 85%"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Previous Daily Challenges -->
+<section class="mt-16">
+<div class="flex items-center justify-between mb-8">
+<div>
+<h2 class="text-2xl font-black font-headline text-on-surface tracking-tight">PREVIOUS DAILY CHALLENGES</h2>
+<p class="text-slate-500 text-sm">Review your history and catch up on missed ranks.</p>
+</div>
+<button class="flex items-center gap-2 text-primary hover:text-primary-fixed transition-colors text-sm font-bold font-headline uppercase tracking-widest">
+                    View Archive
+                    <span class="material-symbols-outlined text-lg" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+<!-- Grid of Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+<!-- Challenge Card 1 -->
+<div class="glass-panel p-6 rounded-xl hover:bg-surface-container transition-all group cursor-pointer border-l-4 border-l-tertiary">
+<div class="flex justify-between items-start mb-4">
+<span class="text-xs font-mono text-slate-500">MAY 23, 2024</span>
+<span class="px-2 py-1 rounded bg-tertiary-container/20 text-tertiary text-[10px] font-bold font-headline">EASY</span>
+</div>
+<h3 class="text-lg font-bold font-headline text-on-surface group-hover:text-primary transition-colors">#206: Reverse Linked List</h3>
+<div class="mt-4 flex items-center justify-between">
+<div class="flex -space-x-2">
+<img alt="Participant 1" class="h-6 w-6 rounded-full border-2 border-surface" data-alt="Stylized portrait of a young tech professional wearing oversized orange headphones in a neon-lit cyberpunk environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7CjSENmnfeJAXAFR_hMYJUQjOZtelfIvQ9O6t5pt7YeeZDXehd-ioiQSphNRUOPzpxfNICuW-pwgHbT8TyG47dLy10PKTOZI75hdiCBr71kLenh5k5Xs2eo_M8dOQOyhyA3LzKk2y8PZ95zuGRKfbueN24FhhbpiQcRCBClI_QCvitnkPRmOPgXGSxwhIskiunAM55M5iq6HlQDTv1XKh3Wdzzi7E0jD7XMYby9ZvmPtT0aLjF84uISjM9WZAUqa8xyiu-VDvvNyX"/>
+<img alt="Participant 2" class="h-6 w-6 rounded-full border-2 border-surface" data-alt="Clean profile avatar of a woman with short teal hair wearing minimalist white smart-glasses in a high-tech lab setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpE_zA8gLnXG3BpnC09y2Vg93rohYNN_bKNOnJE1G9LXh5OEiF6DPf7NLmN488TQgyaUlek03fhOJl5tbfcyFOTMB1NJUYJsi-5H5zL83_kuZ_K78cIYzKknbxoTZZy_AFMjZUMDgnCFQxtf0wFn0loSkvZr_4jmhBIXpLzXCtvuoWY35RukHYi51EfwwBmp6yHS8iOKEj4Ljd7kv1eMHGMAAxZRUyqkpA2DcJx4rnOrUJbJ_wN-au2MqRtiQTRvrMV5CUzb_AcsUg"/>
+<div class="h-6 w-6 rounded-full border-2 border-surface bg-surface-container-highest flex items-center justify-center text-[8px] font-bold text-slate-400">+2.4k</div>
+</div>
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-lg" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-[10px] font-headline font-bold uppercase tracking-widest">Completed</span>
+</div>
+</div>
+</div>
+<!-- Challenge Card 2 -->
+<div class="glass-panel p-6 rounded-xl hover:bg-surface-container transition-all group cursor-pointer border-l-4 border-l-secondary">
+<div class="flex justify-between items-start mb-4">
+<span class="text-xs font-mono text-slate-500">MAY 22, 2024</span>
+<span class="px-2 py-1 rounded bg-secondary-container/20 text-secondary text-[10px] font-bold font-headline">MEDIUM</span>
+</div>
+<h3 class="text-lg font-bold font-headline text-on-surface group-hover:text-primary transition-colors">#15: 3Sum</h3>
+<div class="mt-4 flex items-center justify-between">
+<div class="flex -space-x-2">
+<img alt="Participant 3" class="h-6 w-6 rounded-full border-2 border-surface" data-alt="Vibrant portrait of a software engineer with neon pink backlighting and futuristic streetwear, holding a glowing digital tablet." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAeKRQ3w4mSDK6V5tyJx39c6CztsK1AZqgg1VfDkPUmJ-uGZCrWGp5LMRw36Lo3ackHQAbmbFI_6MuLf4T_tZTTh8-ydQOhD7rod5VybnDiQCGjtBDcZ9rqIg1ePr1XULE6pEonWDzM2U31Wm5C0d8hizEoJ9OzEHGauxj67fsTZNpj7BSzII845RAvP88UEOHrNr2jhBVhj8D_n_LB-P-hFDQ38Gbe6mcB4auQS47Z3savJKjZTRjmgOJx_73dbb2TZkXTPS9QXnIR"/>
+<img alt="Participant 4" class="h-6 w-6 rounded-full border-2 border-surface" data-alt="Modern close-up avatar of a man with glowing cybernetic interface patterns on his temple, set against a dark blue background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDxuRRQzydMOSiVYVgpQ3N3EhTcqGsC-uoBa0uTx0gclP3qOFwKizbbl-8hHIpHFUIdqBkzziRms1gXpWMEykuJ_cSuob5lAPimPGRDxG35qAkG7ANginRT8RUmi-s8btR-xavc3IaCJKrriTVsNiR2vFaWhTHJi8ebe0a2rN8_LQHazKKnSkNbosB_-0aHDJ71CZ6vMjQtOkIGVyG-81Fel8e8lV9-OgV8jUZhmzO2-CpSISfH332TAMQSwrALcmywYtXmoVDmIlVl"/>
+</div>
+<div class="flex items-center gap-1 text-error">
+<span class="material-symbols-outlined text-lg" data-icon="error">error</span>
+<span class="text-[10px] font-headline font-bold uppercase tracking-widest">Missed</span>
+</div>
+</div>
+</div>
+<!-- Challenge Card 3 -->
+<div class="glass-panel p-6 rounded-xl hover:bg-surface-container transition-all group cursor-pointer border-l-4 border-l-error">
+<div class="flex justify-between items-start mb-4">
+<span class="text-xs font-mono text-slate-500">MAY 21, 2024</span>
+<span class="px-2 py-1 rounded bg-error-container/20 text-error text-[10px] font-bold font-headline">HARD</span>
+</div>
+<h3 class="text-lg font-bold font-headline text-on-surface group-hover:text-primary transition-colors">#42: Trapping Rain Water</h3>
+<div class="mt-4 flex items-center justify-between">
+<div class="flex -space-x-2">
+<img alt="Participant 5" class="h-6 w-6 rounded-full border-2 border-surface" data-alt="Portrait of a hacker in a dark hoodie with green matrix-style code reflections on their metallic glasses." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWf10hx7UnIzY0J04g5o2_N1pmE5JKnJwY3slxco4Ku2YYiydZbjNZJpTtmkNhdJxJd5soTLGfdQMoTwZHnPniA83rycZGsoQa7NbN3PhyADBeAolErjEnyPh2FcVJts1QVqKJ-MxX8dcqpDpuSmjpUWWfI5HtmzdtLt3_Y4WhOUHA-Sn5fjSbylZbu1QoS3kZpbFi2iXk8YCSgK8mnR5Zw89ote-T6ZUtgCozRW7_7sGF9tju3n54hgB0JaYMGvNX6K4HhhynlEQ-"/>
+<img alt="Participant 6" class="h-6 w-6 rounded-full border-2 border-surface" data-alt="Stylized female avatar with purple futuristic visor and digital circuitry glowing softly on her dark uniform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtbjhuore7ehrGjCg39oXy1ymZxcVH-6BEZfd3bAdElGZj1_B7O1mTM3dG9azC6HKxEnL19c1ko8sMpEq9kpSitBTikcL_SLPjcdWwd9e5HClCdsTsoEStBthtI6a6P5nCW2O_01dCtfL1p8ptsXOUR15EUSTF46Mkt3XIbEkRoGfIm5jarKi-Zfow6_02uY_JG_FcSXvecgxRlToB0H22RSULVY5gFwhIidWDZ11AsmPH7aKXFGRko3tlAvbETLBsBF6ky1ayK4-l"/>
+</div>
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-lg" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-[10px] font-headline font-bold uppercase tracking-widest">Completed</span>
+</div>
+</div>
+</div>
+<!-- Challenge Card 4 -->
+<div class="glass-panel p-6 rounded-xl hover:bg-surface-container transition-all group cursor-pointer border-l-4 border-l-secondary">
+<div class="flex justify-between items-start mb-4">
+<span class="text-xs font-mono text-slate-500">MAY 20, 2024</span>
+<span class="px-2 py-1 rounded bg-secondary-container/20 text-secondary text-[10px] font-bold font-headline">MEDIUM</span>
+</div>
+<h3 class="text-lg font-bold font-headline text-on-surface group-hover:text-primary transition-colors">#3: Longest Substring</h3>
+<div class="mt-4 flex items-center justify-between">
+<div class="flex -space-x-2">
+<img alt="Participant 7" class="h-6 w-6 rounded-full border-2 border-surface" data-alt="Futuristic gamer avatar with a neon yellow helmet and reflective visor showing a digital interface code." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBuozky-Pw5v4deEeT2P8W2251NurAgNeK3iIcW-RmVbrOvEWE2vxslmYp7TWJLi1_hxirI_CNGuy71d0o2r7SnoIG_AKMECpZsh0vg186G9v0Tqa9ad3UCcUx56kwaecvFFeqCvkOKIhlDQIRxeNNt8EDZF2zWtirssCK00rsIEBscsPmicGmYNTZMAmj-4kqpPG_ICdDx64fz0PiNX2q3J7p-HSFh_WCp3zXxtjOM1xqdPPDgLasr--nMRxZnKtsmB7ruadK8qcLg"/>
+</div>
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-lg" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-[10px] font-headline font-bold uppercase tracking-widest">Completed</span>
+</div>
+</div>
+</div>
+<!-- Challenge Card 5 -->
+<div class="glass-panel p-6 rounded-xl hover:bg-surface-container transition-all group cursor-pointer border-l-4 border-l-tertiary">
+<div class="flex justify-between items-start mb-4">
+<span class="text-xs font-mono text-slate-500">MAY 19, 2024</span>
+<span class="px-2 py-1 rounded bg-tertiary-container/20 text-tertiary text-[10px] font-bold font-headline">EASY</span>
+</div>
+<h3 class="text-lg font-bold font-headline text-on-surface group-hover:text-primary transition-colors">#1: Two Sum</h3>
+<div class="mt-4 flex items-center justify-between">
+<div class="flex -space-x-2">
+<img alt="Participant 8" class="h-6 w-6 rounded-full border-2 border-surface" data-alt="Portrait of a technical director avatar with silver hair and a sharp navy blue cybernetic blazer against a neon blue grid." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBONiXG2pazYhyD-ypevafXDTAy8531vRhe-bjfIRQTcgDIPV34OE7ZpZAH-PZvi5emTlW7cB7nu0QoRnU_Eh1l9LZbk94uejaKgrcdf2vU7Ww31PLostQFV-HsR1TcCdw9-GNm0ZlTRD1m0_S7MYfwp6i8NZj1G5inrZRGL3QSm6zkJKPuSnwOr897WABOljB8NBltj57kpUSX6Y9yncdqy0BJDCCOUx47j4RJEYG_IdzHdq55lly_zI-O3Wlq5BFheY2LVWCx7NUY"/>
+</div>
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-lg" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-[10px] font-headline font-bold uppercase tracking-widest">Completed</span>
+</div>
+</div>
+</div>
+<!-- Challenge Card 6 -->
+<div class="glass-panel p-6 rounded-xl hover:bg-surface-container transition-all group cursor-pointer border-l-4 border-l-secondary">
+<div class="flex justify-between items-start mb-4">
+<span class="text-xs font-mono text-slate-500">MAY 18, 2024</span>
+<span class="px-2 py-1 rounded bg-secondary-container/20 text-secondary text-[10px] font-bold font-headline">MEDIUM</span>
+</div>
+<h3 class="text-lg font-bold font-headline text-on-surface group-hover:text-primary transition-colors">#19: Remove Nth Node</h3>
+<div class="mt-4 flex items-center justify-between">
+<div class="flex -space-x-2">
+<img alt="Participant 9" class="h-6 w-6 rounded-full border-2 border-surface" data-alt="Dark aesthetic avatar of a programmer with glowing red binary code projections across their face and clothing." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBEU0rDa5WhFe-ptAbjXd8C9l9vxtHJc1ljikvHznNWYoEE6q2Jq9eDMLPJ-AqaQy5dASNyLNnDK06906YSXSDMiustG9MYCNUy5GeQtoAIzIeISWy1dfBAMUIYQwjWhmS4mB16g28CUDK7ubRCgN452RfO785fOBHzAYPzcHv39dM32cOI5CUbXT9vVmt9dYzsXPnso80IOlrfzIHrs23gQAzax1uNzwLH228B_Nzyc3CbKKuTrh7Xb31ZZJBRvp7CdsZEH3nGWN1B"/>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-lg" data-icon="history">history</span>
+<span class="text-[10px] font-headline font-bold uppercase tracking-widest">Not Attempted</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Battle Feed Section -->
+<section class="mt-16">
+<h3 class="text-xl font-black font-headline text-on-surface tracking-widest uppercase mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" data-icon="bolt">bolt</span>
+                Live Activity
+            </h3>
+<div class="space-y-3">
+<div class="flex items-center gap-4 p-4 rounded-lg bg-surface-variant/30 border-l-4 border-secondary">
+<span class="text-[10px] font-mono text-slate-500">2M AGO</span>
+<p class="text-sm font-body">
+<span class="font-bold text-primary">NeoCode</span> solved <span class="text-on-surface font-bold">#142</span> in <span class="text-secondary font-bold">12:45</span>
+</p>
+<div class="ml-auto text-xs font-headline font-bold text-tertiary">+150 XP</div>
+</div>
+<div class="flex items-center gap-4 p-4 rounded-lg bg-surface-variant/30 border-l-4 border-secondary/50">
+<span class="text-[10px] font-mono text-slate-500">5M AGO</span>
+<p class="text-sm font-body">
+<span class="font-bold text-primary">BinaryWiz</span> reached <span class="text-secondary font-bold">Diamond Tier</span>
+</p>
+<div class="ml-auto text-xs font-headline font-bold text-tertiary">+500 XP</div>
+</div>
+<div class="flex items-center gap-4 p-4 rounded-lg bg-surface-variant/30 border-l-4 border-secondary/30">
+<span class="text-[10px] font-mono text-slate-500">8M AGO</span>
+<p class="text-sm font-body">
+<span class="font-bold text-primary">LogicLord</span> submitted a perfect solution for <span class="text-on-surface font-bold">#142</span>
+</p>
+<div class="ml-auto text-xs font-headline font-bold text-tertiary">+200 XP</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 h-16 glass-panel border-t border-white/10 flex items-center justify-around px-4 z-50">
+<a class="flex flex-col items-center gap-1 text-slate-500" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-[8px] font-headline font-bold uppercase">Home</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-500" href="#">
+<span class="material-symbols-outlined" data-icon="swords">swords</span>
+<span class="text-[8px] font-headline font-bold uppercase">Arena</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined" data-icon="event_note" style="font-variation-settings: 'FILL' 1;">event_note</span>
+<span class="text-[8px] font-headline font-bold uppercase">Daily</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-500" href="#">
+<span class="material-symbols-outlined" data-icon="leaderboard">leaderboard</span>
+<span class="text-[8px] font-headline font-bold uppercase">Rank</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-500" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="text-[8px] font-headline font-bold uppercase">Profile</span>
+</a>
+</nav>
+</body></html>

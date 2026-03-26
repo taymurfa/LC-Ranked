@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&amp;family=Inter:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container": "#0f1930",
+                        "outline": "#6d758c",
+                        "primary-dim": "#6063ee",
+                        "error": "#ff6e84",
+                        "surface-tint": "#a3a6ff",
+                        "outline-variant": "#40485d",
+                        "surface-container-low": "#091328",
+                        "on-primary-container": "#0a0081",
+                        "primary-fixed-dim": "#8387ff",
+                        "inverse-surface": "#faf8ff",
+                        "primary-container": "#9396ff",
+                        "error-container": "#a70138",
+                        "on-tertiary-fixed-variant": "#003e56",
+                        "tertiary-container": "#2db7f2",
+                        "tertiary": "#47c4ff",
+                        "tertiary-fixed-dim": "#1bafe9",
+                        "secondary-dim": "#8455ef",
+                        "surface-bright": "#1f2b49",
+                        "on-primary-fixed-variant": "#0e009d",
+                        "on-primary": "#0f00a4",
+                        "on-secondary-fixed": "#40009b",
+                        "surface-container-lowest": "#000000",
+                        "on-secondary-container": "#d9c8ff",
+                        "on-error-container": "#ffb2b9",
+                        "tertiary-dim": "#05a9e3",
+                        "secondary-container": "#5516be",
+                        "surface-container-high": "#141f38",
+                        "surface": "#060e20",
+                        "surface-dim": "#060e20",
+                        "on-error": "#490013",
+                        "background": "#060e20",
+                        "secondary-fixed-dim": "#ceb9ff",
+                        "secondary-fixed": "#dac9ff",
+                        "surface-container-highest": "#192540",
+                        "primary": "#a3a6ff",
+                        "tertiary-fixed": "#37bcf7",
+                        "on-tertiary-fixed": "#001a27",
+                        "on-background": "#dee5ff",
+                        "on-secondary": "#280067",
+                        "surface-variant": "#192540",
+                        "on-surface-variant": "#a3aac4",
+                        "on-tertiary": "#003b52",
+                        "on-tertiary-container": "#003044",
+                        "inverse-primary": "#494bd7",
+                        "primary-fixed": "#9396ff",
+                        "secondary": "#ac8aff",
+                        "on-surface": "#dee5ff",
+                        "error-dim": "#d73357",
+                        "on-primary-fixed": "#000000",
+                        "inverse-on-surface": "#4d556b",
+                        "on-secondary-fixed-variant": "#5f28c8"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Inter"],
+                        "mono": ["JetBrains Mono"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(25, 37, 64, 0.4);
+            backdrop-filter: blur(12px);
+            box-shadow: inset 0 0 0 1px rgba(163, 166, 255, 0.15);
+        }
+        .glow-primary {
+            box-shadow: 0 0 20px rgba(163, 166, 255, 0.3);
+        }
+        .glow-secondary {
+            box-shadow: 0 0 25px rgba(172, 138, 255, 0.4);
+        }
+        body {
+            background-color: #060e20;
+            color: #dee5ff;
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="selection:bg-primary selection:text-on-primary">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-slate-950/50 backdrop-blur-xl border-b border-white/10 shadow-[0_8px_32px_0_rgba(99,102,241,0.1)]">
+<div class="flex justify-between items-center px-8 py-4 max-w-screen-2xl mx-auto">
+<div class="text-2xl font-black tracking-tighter text-indigo-500 italic">LeetBattle</div>
+<div class="hidden md:flex items-center gap-8">
+<a class="font-space-grotesk font-bold uppercase tracking-wider text-indigo-400 border-b-2 border-indigo-500 pb-1" href="#">Arena</a>
+<a class="font-space-grotesk font-bold uppercase tracking-wider text-slate-400 hover:text-slate-100 transition-colors" href="#">Leaderboard</a>
+<a class="font-space-grotesk font-bold uppercase tracking-wider text-slate-400 hover:text-slate-100 transition-colors" href="#">Docs</a>
+<a class="font-space-grotesk font-bold uppercase tracking-wider text-slate-400 hover:text-slate-100 transition-colors" href="#">Pro</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="px-5 py-2 text-slate-400 hover:text-slate-100 transition-colors font-semibold">Log In</button>
+<button class="px-6 py-2 bg-primary text-on-primary font-bold rounded-lg shadow-lg hover:bg-primary-container transition-all active:scale-95 duration-100">Sign Up</button>
+</div>
+</div>
+</nav>
+<main class="pt-24 pb-20">
+<!-- Hero Section -->
+<section class="relative px-6 py-20 lg:py-32 overflow-hidden">
+<!-- Background Decorative Elements -->
+<div class="absolute top-1/4 -left-20 w-96 h-96 bg-primary/20 rounded-full blur-[120px] -z-10"></div>
+<div class="absolute bottom-1/4 -right-20 w-96 h-96 bg-secondary/20 rounded-full blur-[120px] -z-10"></div>
+<div class="max-w-6xl mx-auto text-center">
+<div class="glass-card p-12 lg:p-20 rounded-3xl border border-outline-variant relative">
+<div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-surface-container-highest border border-outline-variant mb-8">
+<span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+<span class="text-xs font-mono tracking-widest uppercase text-on-surface-variant">Live Season 04: Neon Protocol</span>
+</div>
+<h1 class="font-headline text-5xl lg:text-8xl font-black tracking-tighter text-on-surface mb-6 leading-none">
+                        CODE TO <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-tertiary">CONQUER.</span>
+</h1>
+<p class="max-w-2xl mx-auto text-lg lg:text-xl text-on-surface-variant mb-12 font-light">
+                        The arena where algorithmic precision meets competitive adrenaline. Join thousands of developers in high-stakes tactical coding battles.
+                    </p>
+<div class="flex flex-col sm:flex-row items-center justify-center gap-6">
+<button class="group relative px-10 py-5 bg-secondary text-on-secondary font-black text-xl rounded-xl glow-secondary hover:scale-105 transition-all active:scale-95 flex items-center gap-3">
+                            ENTER ARENA
+                            <span class="material-symbols-outlined font-bold">rocket_launch</span>
+</button>
+<button class="px-10 py-5 bg-surface-container-high border border-outline-variant text-on-surface font-bold text-xl rounded-xl hover:bg-surface-container-highest transition-all">
+                            VIEW RANKS
+                        </button>
+</div>
+</div>
+</div>
+</section>
+<!-- The Ultimate Competitive Coding Platform -->
+<section class="px-6 py-24 max-w-7xl mx-auto">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="glass-card p-8 rounded-2xl group hover:bg-surface-container-high transition-colors">
+<div class="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-6 border border-primary/20">
+<span class="material-symbols-outlined text-primary text-3xl">swords</span>
+</div>
+<h3 class="font-headline text-2xl font-bold mb-4">The Arena</h3>
+<p class="text-on-surface-variant leading-relaxed">
+                        1v1 and Squad-based real-time matchups. Solve complex problems under pressure while watching your opponent's progress metrics in real-time.
+                    </p>
+</div>
+<div class="glass-card p-8 rounded-2xl group hover:bg-surface-container-high transition-colors">
+<div class="w-14 h-14 rounded-xl bg-secondary/10 flex items-center justify-center mb-6 border border-secondary/20">
+<span class="material-symbols-outlined text-secondary text-3xl">leaderboard</span>
+</div>
+<h3 class="font-headline text-2xl font-bold mb-4">Leaderboards</h3>
+<p class="text-on-surface-variant leading-relaxed">
+                        Dynamic ELO-based ranking system. Climb from 'Script-Kiddie' to 'Legendary Architect' and earn exclusive digital badges and terminal skins.
+                    </p>
+</div>
+<div class="glass-card p-8 rounded-2xl group hover:bg-surface-container-high transition-colors">
+<div class="w-14 h-14 rounded-xl bg-tertiary/10 flex items-center justify-center mb-6 border border-tertiary/20">
+<span class="material-symbols-outlined text-tertiary text-3xl">event_upcoming</span>
+</div>
+<h3 class="font-headline text-2xl font-bold mb-4">Daily Challenges</h3>
+<p class="text-on-surface-variant leading-relaxed">
+                        Curated problems refreshed every 24 hours. Maintain your streak to unlock rare performance analytics and priority match queueing.
+                    </p>
+</div>
+</div>
+</section>
+<!-- Real-time Battle Stats (Bento Grid) -->
+<section class="px-6 py-24 bg-surface-container-low">
+<div class="max-w-7xl mx-auto">
+<div class="mb-16">
+<h2 class="font-headline text-4xl lg:text-5xl font-black mb-4">BATTLE ANALYTICS</h2>
+<p class="text-on-surface-variant max-w-xl">Deep-dive into your cognitive performance metrics. Track speed, accuracy, and algorithmic complexity in every match.</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 h-auto lg:h-[600px]">
+<!-- Main Stat Card -->
+<div class="lg:col-span-8 glass-card rounded-2xl p-8 flex flex-col justify-between relative overflow-hidden">
+<div class="absolute top-0 right-0 p-8 opacity-20">
+<span class="material-symbols-outlined text-9xl">monitoring</span>
+</div>
+<div>
+<div class="flex items-center gap-4 mb-8">
+<span class="text-xs font-mono text-primary bg-primary/10 px-3 py-1 rounded border border-primary/20">LIVE_TELEMETRY</span>
+<span class="text-xs font-mono text-on-surface-variant">ID: BATTLE_772-X</span>
+</div>
+<h4 class="text-6xl font-headline font-black text-on-surface mb-2">98.4%</h4>
+<p class="text-tertiary font-mono uppercase tracking-widest text-sm">Peak Accuracy Rating</p>
+</div>
+<div class="mt-12 h-48 flex items-end gap-2">
+<!-- Mock Graph -->
+<div class="flex-1 bg-primary/20 h-[30%] rounded-t-lg"></div>
+<div class="flex-1 bg-primary/40 h-[60%] rounded-t-lg"></div>
+<div class="flex-1 bg-primary/30 h-[45%] rounded-t-lg"></div>
+<div class="flex-1 bg-primary/60 h-[80%] rounded-t-lg"></div>
+<div class="flex-1 bg-primary/50 h-[65%] rounded-t-lg"></div>
+<div class="flex-1 bg-primary/90 h-[100%] rounded-t-lg glow-primary"></div>
+<div class="flex-1 bg-primary/40 h-[50%] rounded-t-lg"></div>
+</div>
+</div>
+<!-- Side Stats -->
+<div class="lg:col-span-4 flex flex-col gap-6">
+<div class="flex-1 glass-card rounded-2xl p-6 flex items-center gap-6">
+<div class="w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center border border-secondary/30">
+<span class="material-symbols-outlined text-secondary">timer</span>
+</div>
+<div>
+<div class="text-3xl font-headline font-bold">12ms</div>
+<div class="text-sm text-on-surface-variant font-mono">Avg Response Time</div>
+</div>
+</div>
+<div class="flex-1 glass-card rounded-2xl p-6 flex items-center gap-6">
+<div class="w-16 h-16 rounded-full bg-error/10 flex items-center justify-center border border-error/30">
+<span class="material-symbols-outlined text-error">bug_report</span>
+</div>
+<div>
+<div class="text-3xl font-headline font-bold">0</div>
+<div class="text-sm text-on-surface-variant font-mono">Runtime Errors (Last 50)</div>
+</div>
+</div>
+<div class="flex-1 glass-card rounded-2xl p-6 flex items-center gap-6">
+<div class="w-16 h-16 rounded-full bg-tertiary/10 flex items-center justify-center border border-tertiary/30">
+<span class="material-symbols-outlined text-tertiary">bolt</span>
+</div>
+<div>
+<div class="text-3xl font-headline font-bold">4.2x</div>
+<div class="text-sm text-on-surface-variant font-mono">Speed Multiplier vs Global</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Master Your Craft (Practice Library) -->
+<section class="px-6 py-24 max-w-7xl mx-auto">
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-8">
+<div>
+<h2 class="font-headline text-4xl lg:text-5xl font-black mb-4 uppercase">Master Your Craft</h2>
+<p class="text-on-surface-variant">Choose your discipline and sharpen your mental blades.</p>
+</div>
+<div class="flex gap-2 p-1.5 bg-surface-container rounded-xl border border-outline-variant">
+<button class="px-6 py-2 bg-primary text-on-primary rounded-lg font-bold transition-all">ALL</button>
+<button class="px-6 py-2 hover:bg-surface-container-high rounded-lg font-medium transition-all">EASY</button>
+<button class="px-6 py-2 hover:bg-surface-container-high rounded-lg font-medium transition-all">MEDIUM</button>
+<button class="px-6 py-2 hover:bg-surface-container-high rounded-lg font-medium transition-all text-secondary">HARD</button>
+</div>
+</div>
+<div class="space-y-4">
+<!-- Practice Items -->
+<div class="glass-card p-6 rounded-xl flex flex-wrap md:flex-nowrap items-center gap-6 group hover:translate-x-2 transition-transform cursor-pointer">
+<div class="w-12 h-12 bg-surface-container-highest rounded flex items-center justify-center font-mono text-on-surface-variant">#42</div>
+<div class="flex-1">
+<h4 class="text-xl font-bold group-hover:text-primary transition-colors">Bitwise Matrix Traversal</h4>
+<div class="flex items-center gap-4 mt-1">
+<span class="text-xs uppercase font-bold text-secondary">Hard</span>
+<span class="text-xs text-on-surface-variant font-mono">Acceptance: 12.4%</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full bg-slate-800 border-2 border-surface" data-alt="minimalist geometric profile avatar for user 1" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAe8iKDFOyaxdY3vOk6c-TbLrw9wUxkOKzAHR5X-5XoOZPxZD2hg3FNsRLtIS95xPNXonbP2Kc2jDIHqtb3NrKkwVBDRzS4_2Oxt5674n70JhTETpMIcz9jPgWjxuJ6Spo2egzr1NIGDnHF9i2pJ52qn-FL0A4rto3dmVEKJoj3AnwRY3l1llh062VAlK0JxkNhHSM4inseS8Mb5FQFXpZDQY4IVBAszY6ZRupo2dUP9q6fQZVbbfmwxUnaCpzc033IxCEyJTVwTJF9')"></div>
+<div class="w-8 h-8 rounded-full bg-slate-800 border-2 border-surface" data-alt="minimalist geometric profile avatar for user 2" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBS_bC08Ji4GNtlVamIjHtgEsi3EQHEba0Ajd70UtCGT5XPBLu3dfFHROCCrJiwWMuconHFLN8JLAF_PIh_6rVNm7LOg4i3O2Hhmfrqe650OUV7H9A1Lh6dBJrCABEv2OUTAdlgW7jUnSdXQzIrJO697aWzSLkQdVZUk5q6LsWfTnMV9WiSbZaxuvR5wsiAgbX-mCOdIuQwVCQw9hjrOC1crMoNrHGG_GZnL5gUL3CcMF6q8ss8Q8NPEmJfJnh1W0rKKGExcLhI7-GZ')"></div>
+<div class="w-8 h-8 rounded-full bg-slate-800 border-2 border-surface" data-alt="minimalist geometric profile avatar for user 3" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCzE-P064eh065Bdm1wroYDE1hvrkm-jBjgGMBs7kyjoOa0jrbxjJiy1wHRWUbhKSMejRk14cs7OvzU7DSJoCrkfmqQV_rC6SyvWuk26g6PSbzP06VjahUKZ-Mj3BQX18Bin84F5KOonzXUpct7gbAnDeKd0ODVA9B6dS-NCr0sKYOs8LcUS1SdibwopNNJBDuDNYfxzGUZKjNYPTFiY1PQ03lk1tS4P9ZJ3jLMyq41mL7H_VQBF7QUBodwY2AZnyCcUtgapkCAnJHB')"></div>
+</div>
+<span class="text-xs text-on-surface-variant font-mono">2.4k Solved</span>
+</div>
+<button class="w-12 h-12 rounded-full border border-outline-variant flex items-center justify-center group-hover:bg-primary group-hover:text-on-primary transition-all">
+<span class="material-symbols-outlined">play_arrow</span>
+</button>
+</div>
+<div class="glass-card p-6 rounded-xl flex flex-wrap md:flex-nowrap items-center gap-6 group hover:translate-x-2 transition-transform cursor-pointer">
+<div class="w-12 h-12 bg-surface-container-highest rounded flex items-center justify-center font-mono text-on-surface-variant">#108</div>
+<div class="flex-1">
+<h4 class="text-xl font-bold group-hover:text-primary transition-colors">Dynamic String Reversal</h4>
+<div class="flex items-center gap-4 mt-1">
+<span class="text-xs uppercase font-bold text-tertiary">Easy</span>
+<span class="text-xs text-on-surface-variant font-mono">Acceptance: 84.1%</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full bg-slate-800 border-2 border-surface" data-alt="minimalist geometric profile avatar for user 4" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBmOui4T3WozejzatYmxFUFNIGMfZIjZrZ5MnsE7n2T1piqWgP9gNdkZ2fXvRnTeWsraQWivgMYevqU3YYDqUM673IcSyGRIsW14imF07EGZoHkl-5-O5260nizqskRkvfcSCW-qEsxmeIo_Pv-KbGB5i5xEz754kLQYQ2Xg1afCKImBOCNJ5SErfy1lQmQUKTPRdTzlAJ2IGef8aL11Hbv5Zi0LtGPZHSRnsZo5NLzh4kFRmFAUyIyIgFfIqcdEaSuPQmtIaZc5Xat')"></div>
+<div class="w-8 h-8 rounded-full bg-slate-800 border-2 border-surface" data-alt="minimalist geometric profile avatar for user 5" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBlhC3OOzJ2E1g6tQR8BW853rPO33GwPGBuUDEffvQFLQ2K46I2cLwpvqkJJ3z_E6W8tRL2lRC1egzdfPui2EmfxRIuxQrCWxet8MLPtwfAzOOeejqsw2QcHslD2nCP0PAuNhdzYX7IJE8S2KXbBfr7Cy1CkWuk2u7yOnyeeFN4h8ZAiEHqtUxx7NgofrbyYOsJ7X-9waVzYnvYyBVRlDXh4qWA1Bsg8y2e8DbRbLBVnHBMXzpWEqm7uGhSXUWtpN_OSCKZMIpdVrdr')"></div>
+</div>
+<span class="text-xs text-on-surface-variant font-mono">15k Solved</span>
+</div>
+<button class="w-12 h-12 rounded-full border border-outline-variant flex items-center justify-center group-hover:bg-primary group-hover:text-on-primary transition-all">
+<span class="material-symbols-outlined">play_arrow</span>
+</button>
+</div>
+<div class="glass-card p-6 rounded-xl flex flex-wrap md:flex-nowrap items-center gap-6 group hover:translate-x-2 transition-transform cursor-pointer">
+<div class="w-12 h-12 bg-surface-container-highest rounded flex items-center justify-center font-mono text-on-surface-variant">#92</div>
+<div class="flex-1">
+<h4 class="text-xl font-bold group-hover:text-primary transition-colors">Asynchronous Task Orchestrator</h4>
+<div class="flex items-center gap-4 mt-1">
+<span class="text-xs uppercase font-bold text-primary">Medium</span>
+<span class="text-xs text-on-surface-variant font-mono">Acceptance: 45.8%</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full bg-slate-800 border-2 border-surface" data-alt="minimalist geometric profile avatar for user 6" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDrTCBs2tNJbhqT3OkaprNWk3dd5qA-nSvozGdZoqib_cr_8HL4ZN8zFuFxRElo2yU0l5cAynIWUxJGRg8FzBY11g9fMbkAQ9HtkdEHo-IyHpreA7zMaf0g-3o4GRkXh-mfnkr2TIXNT4bsV-Sp0b_phSODSm71KSPcc3T5TeOtSpt_hzDLAOihIjRMxK4c5msM862AHZxJSzswzBbtqkxYnZDP9DbHtQ2CgjNJx8XlUuFc0Ws7dHsLKtG0TtneyqHrkgeMuj85HAFd')"></div>
+</div>
+<span class="text-xs text-on-surface-variant font-mono">5.2k Solved</span>
+</div>
+<button class="w-12 h-12 rounded-full border border-outline-variant flex items-center justify-center group-hover:bg-primary group-hover:text-on-primary transition-all">
+<span class="material-symbols-outlined">play_arrow</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Join the Elite (Top Players) -->
+<section class="px-6 py-24 bg-surface-container-low/50 relative overflow-hidden">
+<div class="max-w-7xl mx-auto">
+<div class="text-center mb-16">
+<h2 class="font-headline text-4xl lg:text-6xl font-black mb-4">JOIN THE ELITE</h2>
+<p class="text-on-surface-variant">The gods of the arena. Will you challenge their reign?</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Rank 2 -->
+<div class="md:mt-12 order-2 md:order-1">
+<div class="glass-card p-1 text-center rounded-3xl group transition-all hover:-translate-y-2">
+<div class="p-8 rounded-[1.4rem] bg-surface-container">
+<div class="relative w-32 h-32 mx-auto mb-6">
+<div class="absolute inset-0 bg-primary/20 rounded-full blur-xl"></div>
+<img class="w-full h-full rounded-full border-4 border-outline-variant relative z-10" data-alt="profile portrait of a high-ranked competitive coder with digital glitch effects" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCH61SljcnHOYOYTXo2140htNWFNq0QySiImuMb9-VcqXcGWWvCQJ_k2Aj4LstTYMUKhPwB89AyuDisprNr6ttuClnib7Q5sglbkPEtFkndw1uuNoVJDKtKCunkzMye-ZmqKmIjDq-3Sb8O70bkAKaph4A1IVCAMrcFV_dTKvMerA7UElx3jNLUf_BlDvyQ1kxF-_hVJVhq8yi0mBQObIaT26rQEb2KU3hnIYZVfd4Ndg1MAhbtz3wa7ahbeU1TDsULmMX_ZhKEg0rT"/>
+<div class="absolute -bottom-2 -right-2 w-10 h-10 bg-slate-400 rounded-full flex items-center justify-center text-on-primary-fixed font-black text-xl z-20">2</div>
+</div>
+<h4 class="text-2xl font-headline font-bold mb-1">NullPointer_Zero</h4>
+<p class="text-on-surface-variant font-mono text-sm mb-6">ELO: 2840</p>
+<div class="flex justify-center gap-2">
+<span class="px-3 py-1 bg-surface-container-high rounded-full text-xs font-bold border border-outline-variant">REACT</span>
+<span class="px-3 py-1 bg-surface-container-high rounded-full text-xs font-bold border border-outline-variant">GO</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Rank 1 -->
+<div class="order-1 md:order-2">
+<div class="glass-card p-1 text-center rounded-3xl group transition-all hover:-translate-y-4 glow-secondary">
+<div class="p-10 rounded-[1.4rem] bg-surface-container-high relative overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-secondary to-transparent"></div>
+<div class="relative w-40 h-40 mx-auto mb-6">
+<div class="absolute inset-0 bg-secondary/30 rounded-full blur-2xl animate-pulse"></div>
+<img class="w-full h-full rounded-full border-4 border-secondary relative z-10" data-alt="profile portrait of an elite grandmaster coder with purple neon lighting highlights" src="https://lh3.googleusercontent.com/aida-public/AB6AXuClNoYgn8lRoCWsjiNXZZgUTSKy4DjA7nFCS0b3RlA6aOiH3mn4BGllPkspqh3uq8N1rElgYr9wM-5xGKdr09dC9l8NTVlueaXbzb6odJknObhtF8iZheyIBkhnrl1zLPrvYG1wZGH4NQWz9p2rg_0DNjaXt6vjNuAyIAbnvo27eXq9Cm1s1cZW0QsCElZr0QC5WPjfAwfqlKYkvo8PxB8e3UDDKFLpAhQU7SFAvo1vWSwc4ey6miMy061vDSpHRMATxIHBuMwSvSAx"/>
+<div class="absolute -bottom-2 -right-2 w-12 h-12 bg-secondary rounded-full flex items-center justify-center text-on-secondary font-black text-2xl z-20 shadow-lg">1</div>
+</div>
+<h4 class="text-3xl font-headline font-black mb-1 text-secondary">CyberShogun</h4>
+<p class="text-on-surface-variant font-mono text-sm mb-6">ELO: 3125</p>
+<div class="flex justify-center gap-2">
+<span class="px-3 py-1 bg-secondary/10 text-secondary rounded-full text-xs font-bold border border-secondary/20">C++</span>
+<span class="px-3 py-1 bg-secondary/10 text-secondary rounded-full text-xs font-bold border border-secondary/20">RUST</span>
+<span class="px-3 py-1 bg-secondary/10 text-secondary rounded-full text-xs font-bold border border-secondary/20">LUA</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Rank 3 -->
+<div class="md:mt-20 order-3">
+<div class="glass-card p-1 text-center rounded-3xl group transition-all hover:-translate-y-2">
+<div class="p-8 rounded-[1.4rem] bg-surface-container">
+<div class="relative w-28 h-28 mx-auto mb-6">
+<div class="absolute inset-0 bg-tertiary/20 rounded-full blur-xl"></div>
+<img class="w-full h-full rounded-full border-4 border-outline-variant relative z-10" data-alt="profile portrait of a master-tier coder with blue tech lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnMsmGsDU-YWkojQJSkZ4bPCrDEMoupaVcwtLXylOiS8zkTOZ800i6ewff-Kpr0eKjVzTKkp0n_3ca2JU_rHGqTOtBNyf8aAtQKrJ8H9V4JfBuIaRASpWZ9_Vom8BhKu70orz7ilN3W4_bXAf1XDnHVbN6Ze8u2ofwiMKRjQP-K0qiEYnJjT8LB7zsZcF80ah9ErNvwRuxPkUeQKRLwBMPtAIfKnC6-bvSSul-8iklZb0DuFNLHtXtxR-qi7i1exAOr2HPKyEdOl5Z"/>
+<div class="absolute -bottom-2 -right-2 w-10 h-10 bg-amber-600 rounded-full flex items-center justify-center text-white font-black text-xl z-20">3</div>
+</div>
+<h4 class="text-2xl font-headline font-bold mb-1">AsyncQueen</h4>
+<p class="text-on-surface-variant font-mono text-sm mb-6">ELO: 2715</p>
+<div class="flex justify-center gap-2">
+<span class="px-3 py-1 bg-surface-container-high rounded-full text-xs font-bold border border-outline-variant">PYTHON</span>
+<span class="px-3 py-1 bg-surface-container-high rounded-full text-xs font-bold border border-outline-variant">TYPESCRIPT</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-slate-950 w-full py-12 px-8 border-t border-white/5">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-7xl mx-auto">
+<div class="col-span-2 md:col-span-1">
+<div class="text-lg font-bold text-slate-100 mb-4">LeetBattle</div>
+<p class="text-slate-500 font-inter text-sm antialiased max-w-xs leading-relaxed">
+                    © 2024 LeetBattle. Terminal Grade Performance. Elevating the standard of competitive programming.
+                </p>
+</div>
+<div>
+<h5 class="font-bold text-slate-100 mb-4 uppercase tracking-widest text-xs">Navigation</h5>
+<ul class="space-y-2">
+<li><a class="text-slate-500 hover:text-indigo-300 transition-colors text-sm" href="#">Arena</a></li>
+<li><a class="text-slate-500 hover:text-indigo-300 transition-colors text-sm" href="#">Leaderboard</a></li>
+<li><a class="text-slate-500 hover:text-indigo-300 transition-colors text-sm" href="#">Challenges</a></li>
+</ul>
+</div>
+<div>
+<h5 class="font-bold text-slate-100 mb-4 uppercase tracking-widest text-xs">Platform</h5>
+<ul class="space-y-2">
+<li><a class="text-slate-500 hover:text-indigo-300 transition-colors text-sm" href="#">Docs</a></li>
+<li><a class="text-slate-500 hover:text-indigo-300 transition-colors text-sm" href="#">Pro Membership</a></li>
+<li><a class="text-slate-500 hover:text-indigo-300 transition-colors text-sm" href="#">Teams</a></li>
+</ul>
+</div>
+<div>
+<h5 class="font-bold text-slate-100 mb-4 uppercase tracking-widest text-xs">Community</h5>
+<div class="flex gap-4">
+<a class="text-slate-500 hover:text-indigo-300 transition-colors" href="#">
+<span class="material-symbols-outlined">forum</span>
+</a>
+<a class="text-slate-500 hover:text-indigo-300 transition-colors" href="#">
+<span class="material-symbols-outlined">terminal</span>
+</a>
+<a class="text-slate-500 hover:text-indigo-300 transition-colors" href="#">
+<span class="material-symbols-outlined">share</span>
+</a>
+</div>
+<div class="mt-6 space-x-4">
+<a class="text-slate-500 hover:text-indigo-300 transition-colors text-xs" href="#">Terms</a>
+<a class="text-slate-500 hover:text-indigo-300 transition-colors text-xs" href="#">Privacy</a>
+</div>
+</div>
+</div>
+</footer>
+</body></html>
